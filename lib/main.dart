@@ -461,7 +461,7 @@ class _DonationPageState extends State<DonationPage> {
         'model': model.text.trim(),
         'note': note.text.trim(),
         'department': department,
-        'center': 'matagalpa-el-progreso',
+        'center': Acopio.id,
         'createdAt': FieldValue.serverTimestamp(),
       });
       model.clear();
@@ -603,6 +603,7 @@ class _DonationPageState extends State<DonationPage> {
               if (department == 'Matagalpa') ...[
                 const AcopioMap(),
                 const SizedBox(height: 12),
+                const Text(Acopio.locationNote),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.school_outlined, color: brandBlue),
@@ -665,42 +666,6 @@ class AcopioMap extends StatelessWidget {
   const AcopioMap({super.key});
   @override
   Widget build(BuildContext context) {
-    if (Acopio.mapsKey.isEmpty || Acopio.placeId.isEmpty) {
-      return Container(
-        height: 220,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: paleBlue,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.map_outlined, size: 42, color: brandBlue),
-                const SizedBox(height: 12),
-                const Text(
-                  'Escuela El Progreso · Matagalpa',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Mapa pendiente de la ubicación confirmada y de la clave de Google Maps.',
-                  textAlign: TextAlign.center,
-                ),
-                TextButton(
-                  onPressed: () => openCenter(context),
-                  child: const Text('Ver información del centro'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
     return buildEmbeddedMap();
   }
 }
@@ -758,6 +723,8 @@ class CenterPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   const AcopioMap(),
+                  const SizedBox(height: 12),
+                  const Text(Acopio.locationNote),
                   const SizedBox(height: 20),
                   FilledButton.icon(
                     onPressed: Acopio.whatsapp.isEmpty
