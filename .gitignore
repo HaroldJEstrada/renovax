@@ -10,3 +10,5 @@ coverage/
 android/local.properties
 **/Flutter/ephemeral/
 **/flutter/ephemeral/
+config/firebase.local.json
+.firebase/
