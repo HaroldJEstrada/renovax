@@ -10,9 +10,11 @@ import 'map_stub.dart' if (dart.library.js_interop) 'map_web.dart';
 import 'backend.dart';
 import 'config.dart';
 
-const ink = Color(0xFF153C34);
-const green = Color(0xFF207653);
-const paper = Color(0xFFF5F7F2);
+const ink = Color(0xFF1D385C);
+const brandBlue = Color(0xFF4068AA);
+const paper = Color(0xFFEDF4FF);
+const paleBlue = Color(0xFFE1EDFF);
+const lineBlue = Color(0xFFBDD0EF);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +31,30 @@ class RenovaxApp extends StatelessWidget {
     theme: ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: paper,
-      colorScheme: ColorScheme.fromSeed(seedColor: green),
+      colorScheme: ColorScheme.fromSeed(seedColor: brandBlue).copyWith(
+        primary: brandBlue,
+        onPrimary: Colors.white,
+        secondary: const Color(0xFF7195CC),
+        surface: const Color(0xFFF8FBFF),
+        onSurface: ink,
+        outline: lineBlue,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: ink,
+        foregroundColor: Colors.white,
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+      chipTheme: const ChipThemeData(
+        backgroundColor: paleBlue,
+        selectedColor: lineBlue,
+      ),
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
           fontSize: 44,
@@ -73,11 +98,39 @@ class Sheet extends StatelessWidget {
     width: double.infinity,
     padding: const EdgeInsets.all(24),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: const Color(0xFFF8FBFF),
       borderRadius: BorderRadius.circular(22),
-      border: Border.all(color: const Color(0xFFDDE5DC)),
+      border: Border.all(color: lineBlue),
     ),
     child: child,
+  );
+}
+
+/// El archivo original conserva su transparencia y márgenes. El recorte es solo
+/// de presentación para que el logo horizontal se lea sin modificar la imagen.
+class BrandLogo extends StatelessWidget {
+  final double width;
+  const BrandLogo({super.key, this.width = 200});
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: width,
+    height: width * .27,
+    child: ClipRect(
+      child: OverflowBox(
+        alignment: Alignment.center,
+        minWidth: width * 1.28,
+        maxWidth: width * 1.28,
+        minHeight: width * 1.28,
+        maxHeight: width * 1.28,
+        child: Image.asset(
+          'renovax_logo.png',
+          width: width * 1.28,
+          height: width * 1.28,
+          fit: BoxFit.contain,
+          semanticLabel: 'Renovax',
+        ),
+      ),
+    ),
   );
 }
 
@@ -96,7 +149,11 @@ class _PublicPageState extends State<PublicPage> {
       child: Column(
         children: [
           Container(
-            color: Colors.white,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF294F90), Color(0xFF1D385C)],
+              ),
+            ),
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Wrap(
@@ -105,21 +162,7 @@ class _PublicPageState extends State<PublicPage> {
               spacing: 20,
               runSpacing: 12,
               children: [
-                const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.recycling, color: green, size: 32),
-                    SizedBox(width: 8),
-                    Text(
-                      'renovax',
-                      style: TextStyle(
-                        fontSize: 27,
-                        fontWeight: FontWeight.w900,
-                        color: ink,
-                      ),
-                    ),
-                  ],
-                ),
+                const BrandLogo(),
                 Wrap(
                   spacing: 6,
                   children: List.generate(
@@ -127,15 +170,20 @@ class _PublicPageState extends State<PublicPage> {
                     (i) => TextButton(
                       onPressed: () => setState(() => section = i),
                       style: TextButton.styleFrom(
+                        foregroundColor: Colors.white,
                         backgroundColor: section == i
-                            ? const Color(0xFFE5EFDF)
-                            : null,
+                            ? brandBlue
+                            : Colors.transparent,
                       ),
                       child: Text(labels[i]),
                     ),
                   ),
                 ),
                 OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0xFFAEC4E6)),
+                  ),
                   onPressed: () => Navigator.pushNamed(context, '/admin'),
                   icon: const Icon(Icons.lock_outline, size: 18),
                   label: const Text('Administración'),
@@ -166,7 +214,17 @@ class _PublicPageState extends State<PublicPage> {
                             width: double.infinity,
                             padding: const EdgeInsets.all(32),
                             decoration: BoxDecoration(
-                              color: ink,
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFFD9E8FF), Color(0xFFF5F9FF)],
+                              ),
+                              border: Border.all(color: lineBlue),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color(0x144068AA),
+                                  blurRadius: 24,
+                                  offset: Offset(0, 8),
+                                ),
+                              ],
                               borderRadius: BorderRadius.circular(28),
                             ),
                             child: Column(
@@ -175,7 +233,7 @@ class _PublicPageState extends State<PublicPage> {
                                 const Text(
                                   'RECUPERAR · TRANSFORMAR · CONECTAR',
                                   style: TextStyle(
-                                    color: Color(0xFFBCE89E),
+                                    color: brandBlue,
                                     letterSpacing: 2,
                                     fontSize: 12,
                                   ),
@@ -184,7 +242,7 @@ class _PublicPageState extends State<PublicPage> {
                                 const Text(
                                   'Tu celular en desuso.\nUna nueva posibilidad.',
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: ink,
                                     fontSize: 44,
                                     height: 1.1,
                                     fontWeight: FontWeight.w800,
@@ -194,15 +252,15 @@ class _PublicPageState extends State<PublicPage> {
                                 const Text(
                                   'Recuperamos componentes de teléfonos para darles otra vida en proyectos útiles para nuestra comunidad.',
                                   style: TextStyle(
-                                    color: Color(0xFFD4E3DA),
+                                    color: Color(0xFF526F99),
                                     fontSize: 18,
                                   ),
                                 ),
                                 const SizedBox(height: 28),
                                 FilledButton.icon(
                                   style: FilledButton.styleFrom(
-                                    backgroundColor: const Color(0xFFCAEDAA),
-                                    foregroundColor: ink,
+                                    backgroundColor: brandBlue,
+                                    foregroundColor: Colors.white,
                                   ),
                                   onPressed: () => setState(() => section = 3),
                                   icon: const Icon(Icons.arrow_forward),
@@ -283,7 +341,7 @@ class _PublicPageState extends State<PublicPage> {
                                       ? Icons.spa_outlined
                                       : Icons.public,
                                   size: 48,
-                                  color: green,
+                                  color: brandBlue,
                                 ),
                                 const SizedBox(height: 20),
                                 Text(
@@ -317,7 +375,7 @@ class _PublicPageState extends State<PublicPage> {
                         const Divider(),
                         const Text(
                           'RENOVAX  /  Tecnología con otra oportunidad',
-                          style: TextStyle(color: green),
+                          style: TextStyle(color: brandBlue),
                         ),
                       ],
                     ),
@@ -547,7 +605,7 @@ class _DonationPageState extends State<DonationPage> {
                 const SizedBox(height: 12),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.school_outlined, color: green),
+                  leading: const Icon(Icons.school_outlined, color: brandBlue),
                   title: const Text(Acopio.name),
                   subtitle: const Text(
                     'Matagalpa · Ver información del centro',
@@ -612,7 +670,7 @@ class AcopioMap extends StatelessWidget {
         height: 220,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: const Color(0xFFE7EEDF),
+          color: paleBlue,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Center(
@@ -621,7 +679,7 @@ class AcopioMap extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.map_outlined, size: 42, color: green),
+                const Icon(Icons.map_outlined, size: 42, color: brandBlue),
                 const SizedBox(height: 12),
                 const Text(
                   'Escuela El Progreso · Matagalpa',
@@ -652,7 +710,13 @@ class CenterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text('Centro de acopio'),
+      title: const Row(
+        children: [
+          BrandLogo(width: 135),
+          SizedBox(width: 18),
+          Flexible(child: Text('Centro de acopio')),
+        ],
+      ),
       leading: IconButton(
         icon: const Icon(Icons.home_outlined),
         onPressed: () =>
@@ -669,7 +733,7 @@ class CenterPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.school_outlined, size: 48, color: green),
+                  const Icon(Icons.school_outlined, size: 48, color: brandBlue),
                   const SizedBox(height: 18),
                   Text(
                     Acopio.name,
@@ -786,10 +850,17 @@ class _AdminPageState extends State<AdminPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text('Renovax / Administración'),
+      title: const Row(
+        children: [
+          BrandLogo(width: 135),
+          SizedBox(width: 18),
+          Flexible(child: Text('Administración')),
+        ],
+      ),
       actions: [
         if (authorized)
           TextButton.icon(
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
             onPressed: () async {
               await Backend.auth.signOut();
               if (mounted) setState(() => authorized = false);
@@ -822,7 +893,7 @@ class _AdminPageState extends State<AdminPage> {
                                     children: [
                                       const Icon(
                                         Icons.lock_outline,
-                                        color: green,
+                                        color: brandBlue,
                                         size: 40,
                                       ),
                                       const SizedBox(height: 20),
@@ -1018,7 +1089,11 @@ class InventoryPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(partIcon(entry.value), color: green, size: 28),
+                            Icon(
+                              partIcon(entry.value),
+                              color: brandBlue,
+                              size: 28,
+                            ),
                             const SizedBox(height: 18),
                             Text(
                               '${totals[entry.key] ?? 0}',
