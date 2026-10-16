@@ -2,6 +2,10 @@
 
 Aplicación Flutter web para donaciones de celulares y recuperación de componentes en Nicaragua.
 
+## Identidad visual
+
+Paleta basada en la referencia enviada: azul principal `#4068AA`, azul oscuro `#1D385C`, fondo `#EDF4FF`, celeste `#E1EDFF` y bordes `#BDD0EF`. El logo original transparente está en `renovax_logo.png` y se declara como asset en `pubspec.yaml`.
+
 ## Qué incluye
 
 - Inicio, misión y visión (textos iniciales propuestos, editables en `lib/main.dart`).
