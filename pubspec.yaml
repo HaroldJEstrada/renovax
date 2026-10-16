@@ -25,3 +25,6 @@ flutter:
   uses-material-design: true
   assets:
     - renovax_logo.png
+    - component_gps.jpg
+    - component_motion.jpg
+    - component_camera.jpg

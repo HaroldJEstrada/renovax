@@ -17,7 +17,11 @@ Los proveedores de Google y correo/contraseña están habilitados, `localhost` e
 
 ## Identidad visual
 
-Paleta basada en la referencia enviada: azul principal `#4068AA`, azul oscuro `#1D385C`, fondo `#EDF4FF`, celeste `#E1EDFF` y bordes `#BDD0EF`. El logo original transparente está en `renovax_logo.png` y se declara como asset en `pubspec.yaml`.
+Paleta basada en la referencia enviada: azul principal `#4068AA`, azul oscuro `#1D385C`, fondo `#EDF4FF`, celeste `#E1EDFF` y bordes `#BDD0EF`. El modo oscuro usa fondos carbón `#15161B` / `#222329`, acento rojo `#FF6078` y bordes `#65404B`, según la referencia roja y negra enviada. El selector Claro/Oscuro está en la navegación y en administración; la preferencia se conserva en el almacenamiento local del navegador cuando está disponible.
+
+Misión y visión incluyen portada, pilares de acción y galería de GPS, sensor de movimiento y cámara, con las tres imágenes proporcionadas. Se presentan como ejemplos de usos posibles, sin afirmar que existan proyectos ya implementados.
+
+El logo original transparente está en `renovax_logo.png` y se declara como asset en `pubspec.yaml`.
 
 ## Qué incluye
 
