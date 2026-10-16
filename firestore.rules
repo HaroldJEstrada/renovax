@@ -33,7 +33,7 @@ service cloud.firestore {
         && request.resource.data.model is string && request.resource.data.model.size() <= 120
         && request.resource.data.note is string && request.resource.data.note.size() <= 1000
         && request.resource.data.department == 'Matagalpa'
-        && request.resource.data.center == 'matagalpa-el-progreso'
+        && request.resource.data.center == 'matagalpa-cur-unan'
         && request.resource.data.createdAt == request.time;
       allow update, delete: if false;
     }

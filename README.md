@@ -11,7 +11,7 @@ Paleta basada en la referencia enviada: azul principal `#4068AA`, azul oscuro `#
 - Inicio, misión y visión (textos iniciales propuestos, editables en `lib/main.dart`).
 - Donaciones: acceso real con Google, nombre y correo de solo lectura, modelo y nota opcionales, consentimiento y registro en Firestore.
 - Selector de los 15 departamentos y las 2 regiones autónomas. Solo Matagalpa permite registrar entregas.
-- Escuela El Progreso: página independiente, datos de atención, mapa mediante Google Maps Embed API y contacto por WhatsApp.
+- CUR UNAN Matagalpa: página independiente, datos de atención, mapa mediante Leaflet con OpenStreetMap y contacto por WhatsApp.
 - Administración: acceso por correo y contraseña; autorización comprobada en Firestore.
 - Inventario: cantidades grandes de Wi-Fi, GPS, acelerómetro, motor vibrador, altavoz, sensor de proximidad y giroscopio; ingreso de cantidades y notas opcionales; tipos adicionales e historial.
 - Los ingresos son documentos inmutables y las cantidades se calculan sumándolos. Dos administradores pueden registrar ingresos sin sobrescribir un contador compartido.
@@ -62,21 +62,25 @@ Los valores de `--dart-define` se leen al iniciar/compilar: si los cambiás, det
 
 Solo un propietario autorizado del proyecto Firebase puede otorgar este permiso desde la consola. La aplicación no puede crear documentos `admins`. Una cuenta de Google de donante no recibe permisos de administrador por iniciar sesión.
 
-## 4. Completar el acopio y Google Maps
+## 4. Acopio: CUR UNAN Matagalpa y mapa Leaflet
 
-Editá `lib/config.dart` con datos confirmados de Escuela El Progreso:
+La dirección se corrigió a **CUR UNAN Matagalpa, Matagalpa, Nicaragua**.
+El mapa usa **Leaflet 1.9.4** y las teselas estándar de OpenStreetMap. No necesita una clave de Google Maps ni configurar facturación de Google para el mapa. El acceso con Google para donaciones continúa usando Firebase.
 
-- `address`: dirección exacta.
-- `days`: días de atención.
-- `hours`: horas de atención.
-- `placeId`: identificador del lugar exacto en Google Maps.
-- `whatsapp`: teléfono con código de país y solo dígitos; sin `+`, espacios ni guiones.
+Las coordenadas de referencia son `12.9237391, -85.9223240`, correspondientes a UNAN/FAREM Matagalpa en https://www.openstreetmap.org/node/4357997699. Confirmá que ese sea el recinto elegido y el punto exacto de recepción. La interfaz advierte que se trata de una referencia del recinto.
 
-La dirección, los horarios, el WhatsApp y el Place ID están pendientes. El nombre y el departamento corresponden al centro indicado en el requerimiento. No se muestra un marcador aproximado para evitar señalar otra escuela con el mismo nombre.
+Editá `lib/config.dart` para completar o ajustar:
 
-En Google Cloud habilitá **Maps Embed API** para tu proyecto y creá una clave restringida a esa API y a los dominios web autorizados (incluí tu origen local durante desarrollo). Google puede pedir una cuenta de facturación; revisá sus condiciones antes de activarla. Poné la clave en `GOOGLE_MAPS_API_KEY` dentro del JSON local.
+- `latitude` y `longitude`: ubicación exacta si el acopio está en otro recinto o entrada.
+- `address`: dirección detallada para llegar al punto de recepción.
+- `days` y `hours`: días y horas de atención del acopio (siguen pendientes; no se toman del horario general de la universidad).
+- `whatsapp`: teléfono confirmado con código de país y solo dígitos.
 
-Cuando existan clave y Place ID se mostrará el mapa interactivo. El enlace **Ver información del centro** abre `/#/acopio` en otra pestaña. WhatsApp se habilita al completar el número.
+El marcador abre `/#/acopio` en una nueva pestaña. También se puede usar el enlace debajo del mapa. WhatsApp se habilita al completar el número.
+
+El mapa mantiene los enlaces **Leaflet** y **© OpenStreetMap contributors** visibles. Solo carga las teselas necesarias para la vista actual: no ofrece descarga masiva ni mapas sin conexión. Para un despliegue con tráfico alto, evaluá un proveedor de teselas apropiado y revisá https://operations.osmfoundation.org/policies/tiles/.
+
+La biblioteca se descarga de un CDN con versión e integridad fijadas. Si el CDN o el mapa fallan, se muestra un aviso y un enlace alternativo a OpenStreetMap. No se envían datos del donante al mapa ni se solicita su ubicación personal.
 
 ## 5. Comprobar el comportamiento
 
@@ -113,4 +117,5 @@ Documentación oficial:
 - https://firebase.google.com/docs/auth/flutter/federated-auth
 - https://firebase.google.com/docs/auth/flutter/password-auth
 - https://firebase.google.com/docs/firestore/security/rules-conditions
-- https://developers.google.com/maps/documentation/embed/embedding-map
+- https://leafletjs.com/examples/quick-start/index.html
+- https://www.openstreetmap.org/copyright
