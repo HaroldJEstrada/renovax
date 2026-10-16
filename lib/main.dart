@@ -9,80 +9,31 @@ import 'map_stub.dart' if (dart.library.js_interop) 'map_web.dart';
 
 import 'backend.dart';
 import 'config.dart';
-
-const ink = Color(0xFF1D385C);
-const brandBlue = Color(0xFF4068AA);
-const paper = Color(0xFFEDF4FF);
-const paleBlue = Color(0xFFE1EDFF);
-const lineBlue = Color(0xFFBDD0EF);
+import 'brand_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Backend.initialize();
-  runApp(const RenovaxApp());
+  runApp(RenovaxApp());
 }
 
 class RenovaxApp extends StatelessWidget {
   const RenovaxApp({super.key});
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    title: 'Renovax · Tecnología con otra oportunidad',
-    debugShowCheckedModeBanner: false,
-    theme: ThemeData(
-      useMaterial3: true,
-      scaffoldBackgroundColor: paper,
-      colorScheme: ColorScheme.fromSeed(seedColor: brandBlue).copyWith(
-        primary: brandBlue,
-        onPrimary: Colors.white,
-        secondary: const Color(0xFF7195CC),
-        surface: const Color(0xFFF8FBFF),
-        onSurface: ink,
-        outline: lineBlue,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: ink,
-        foregroundColor: Colors.white,
-      ),
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      ),
-      chipTheme: const ChipThemeData(
-        backgroundColor: paleBlue,
-        selectedColor: lineBlue,
-      ),
-      textTheme: const TextTheme(
-        headlineLarge: TextStyle(
-          fontSize: 44,
-          fontWeight: FontWeight.w800,
-          color: ink,
-        ),
-        headlineMedium: TextStyle(
-          fontSize: 30,
-          fontWeight: FontWeight.w700,
-          color: ink,
-        ),
-        titleLarge: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
-          color: ink,
-        ),
-      ),
-      inputDecorationTheme: const InputDecorationTheme(
-        border: OutlineInputBorder(),
-        filled: true,
-        fillColor: Colors.white,
-      ),
+  Widget build(BuildContext context) => ValueListenableBuilder<ThemeMode>(
+    valueListenable: appTheme,
+    builder: (context, mode, _) => MaterialApp(
+      title: 'Renovax · Tecnología con otra oportunidad',
+      debugShowCheckedModeBanner: false,
+      theme: buildBrandTheme(false),
+      darkTheme: buildBrandTheme(true),
+      themeMode: mode,
+      routes: {
+        '/': (_) => PublicPage(),
+        '/acopio': (_) => CenterPage(),
+        '/admin': (_) => AdminPage(),
+      },
     ),
-    routes: {
-      '/': (_) => const PublicPage(),
-      '/acopio': (_) => const CenterPage(),
-      '/admin': (_) => const AdminPage(),
-    },
   );
 }
 
@@ -96,11 +47,11 @@ class Sheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     width: double.infinity,
-    padding: const EdgeInsets.all(24),
+    padding: EdgeInsets.all(24),
     decoration: BoxDecoration(
-      color: const Color(0xFFF8FBFF),
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(22),
-      border: Border.all(color: lineBlue),
+      border: Border.all(color: borderColor),
     ),
     child: child,
   );
@@ -142,27 +93,25 @@ class PublicPage extends StatefulWidget {
 
 class _PublicPageState extends State<PublicPage> {
   int section = 0;
-  static const labels = ['Inicio', 'Misión', 'Visión', 'Donaciones'];
+  static final labels = ['Inicio', 'Misión', 'Visión', 'Donaciones'];
   @override
   Widget build(BuildContext context) => Scaffold(
     body: SafeArea(
       child: Column(
         children: [
           Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF294F90), Color(0xFF1D385C)],
-              ),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(colors: headerColors),
             ),
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Wrap(
               alignment: WrapAlignment.spaceBetween,
               crossAxisAlignment: WrapCrossAlignment.center,
               spacing: 20,
               runSpacing: 12,
               children: [
-                const BrandLogo(),
+                BrandLogo(),
                 Wrap(
                   spacing: 6,
                   children: List.generate(
@@ -172,21 +121,22 @@ class _PublicPageState extends State<PublicPage> {
                       style: TextButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor: section == i
-                            ? brandBlue
+                            ? navSelectionColor
                             : Colors.transparent,
                       ),
                       child: Text(labels[i]),
                     ),
                   ),
                 ),
+                ThemeToggle(),
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white,
-                    side: const BorderSide(color: Color(0xFFAEC4E6)),
+                    side: BorderSide(color: borderColor),
                   ),
                   onPressed: () => Navigator.pushNamed(context, '/admin'),
-                  icon: const Icon(Icons.lock_outline, size: 18),
-                  label: const Text('Administración'),
+                  icon: Icon(Icons.lock_outline, size: 18),
+                  label: Text('Administración'),
                 ),
               ],
             ),
@@ -195,9 +145,9 @@ class _PublicPageState extends State<PublicPage> {
             child: SingleChildScrollView(
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1120),
+                  constraints: BoxConstraints(maxWidth: 1120),
                   child: Padding(
-                    padding: const EdgeInsets.all(24),
+                    padding: EdgeInsets.all(24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -207,20 +157,18 @@ class _PublicPageState extends State<PublicPage> {
                               Backend.startupError ?? 'Vista previa · La conexión con Google y el guardado se habilitarán al configurar Firebase.',
                             ),
                           ),
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24),
                         ],
                         if (section == 0) ...[
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.all(32),
+                            padding: EdgeInsets.all(32),
                             decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFFD9E8FF), Color(0xFFF5F9FF)],
-                              ),
-                              border: Border.all(color: lineBlue),
-                              boxShadow: const [
+                              gradient: LinearGradient(colors: heroColors),
+                              border: Border.all(color: borderColor),
+                              boxShadow: [
                                 BoxShadow(
-                                  color: Color(0x144068AA),
+                                  color: glowColor,
                                   blurRadius: 24,
                                   offset: Offset(0, 8),
                                 ),
@@ -230,44 +178,44 @@ class _PublicPageState extends State<PublicPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'RECUPERAR · TRANSFORMAR · CONECTAR',
                                   style: TextStyle(
-                                    color: brandBlue,
+                                    color: accentColor,
                                     letterSpacing: 2,
                                     fontSize: 12,
                                   ),
                                 ),
-                                const SizedBox(height: 24),
-                                const Text(
+                                SizedBox(height: 24),
+                                Text(
                                   'Tu celular en desuso.\nUna nueva posibilidad.',
                                   style: TextStyle(
-                                    color: ink,
+                                    color: headingColor,
                                     fontSize: 44,
                                     height: 1.1,
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
-                                const SizedBox(height: 20),
-                                const Text(
+                                SizedBox(height: 20),
+                                Text(
                                   'Recuperamos componentes de teléfonos para darles otra vida en proyectos útiles para nuestra comunidad.',
                                   style: TextStyle(
-                                    color: Color(0xFF526F99),
+                                    color: mutedColor,
                                     fontSize: 18,
                                   ),
                                 ),
-                                const SizedBox(height: 28),
+                                SizedBox(height: 28),
                                 FilledButton.icon(
                                   style: FilledButton.styleFrom(
-                                    backgroundColor: brandBlue,
-                                    foregroundColor: Colors.white,
+                                    backgroundColor: accentColor,
+                                    foregroundColor: buttonTextColor,
                                   ),
                                   onPressed: () => setState(() => section = 3),
-                                  icon: const Icon(Icons.arrow_forward),
-                                  label: const Text('Quiero donar un celular'),
+                                  icon: Icon(Icons.arrow_forward),
+                                  label: Text('Quiero donar un celular'),
                                 ),
-                                const SizedBox(height: 28),
-                                const Wrap(
+                                SizedBox(height: 28),
+                                Wrap(
                                   spacing: 24,
                                   runSpacing: 12,
                                   children: [
@@ -288,16 +236,16 @@ class _PublicPageState extends State<PublicPage> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 32),
+                          SizedBox(height: 32),
                           Text(
                             'Cada componente cuenta',
                             style: Theme.of(context).textTheme.headlineMedium,
                           ),
-                          const SizedBox(height: 10),
-                          const Text(
+                          SizedBox(height: 10),
+                          Text(
                             'Estas son las piezas que recuperamos y registramos en nuestro inventario.',
                           ),
-                          const SizedBox(height: 18),
+                          SizedBox(height: 18),
                           Wrap(
                             spacing: 10,
                             runSpacing: 10,
@@ -310,8 +258,8 @@ class _PublicPageState extends State<PublicPage> {
                                 )
                                 .toList(),
                           ),
-                          const SizedBox(height: 28),
-                          const Sheet(
+                          SizedBox(height: 28),
+                          Sheet(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -320,7 +268,7 @@ class _PublicPageState extends State<PublicPage> {
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
-                                    color: ink,
+                                    color: headingColor,
                                   ),
                                 ),
                                 SizedBox(height: 16),
@@ -332,50 +280,16 @@ class _PublicPageState extends State<PublicPage> {
                           ),
                         ],
                         if (section == 1 || section == 2)
-                          Sheet(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Icon(
-                                  section == 1
-                                      ? Icons.spa_outlined
-                                      : Icons.public,
-                                  size: 48,
-                                  color: brandBlue,
-                                ),
-                                const SizedBox(height: 20),
-                                Text(
-                                  section == 1
-                                      ? 'Nuestra misión'
-                                      : 'Nuestra visión',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineLarge,
-                                ),
-                                const SizedBox(height: 20),
-                                Text(
-                                  section == 1
-                                      ? 'Dar una segunda vida a los componentes de teléfonos en desuso, promoviendo la donación responsable, la innovación y el aprovechamiento tecnológico para beneficio de la comunidad.'
-                                      : 'Construir una comunidad en Nicaragua donde la tecnología se reutilice de forma responsable y se transforme en oportunidades educativas, ambientales y sociales.',
-                                  style: const TextStyle(
-                                    fontSize: 21,
-                                    height: 1.6,
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                                FilledButton(
-                                  onPressed: () => setState(() => section = 3),
-                                  child: const Text('Sumarme con una donación'),
-                                ),
-                              ],
-                            ),
+                          PurposePage(
+                            vision: section == 2,
+                            onDonate: () => setState(() => section = 3),
                           ),
-                        if (section == 3) const DonationPage(),
-                        const SizedBox(height: 40),
-                        const Divider(),
-                        const Text(
+                        if (section == 3) DonationPage(),
+                        SizedBox(height: 40),
+                        Divider(),
+                        Text(
                           'RENOVAX  /  Tecnología con otra oportunidad',
-                          style: TextStyle(color: brandBlue),
+                          style: TextStyle(color: accentColor),
                         ),
                       ],
                     ),
@@ -488,36 +402,36 @@ class _DonationPageState extends State<DonationPage> {
         'Una donación. Muchas posibilidades.',
         style: Theme.of(context).textTheme.headlineMedium,
       ),
-      const SizedBox(height: 10),
-      const Text('Registrá tu equipo y encontrá dónde entregarlo.'),
-      const SizedBox(height: 24),
+      SizedBox(height: 10),
+      Text('Registrá tu equipo y encontrá dónde entregarlo.'),
+      SizedBox(height: 24),
       Sheet(
         child: Form(
           key: form,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 '01 / Tus datos',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: ink,
+                  color: headingColor,
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               if (!googleUser) ...[
-                const Text(
+                Text(
                   'Iniciá sesión con Google para completar automáticamente tu nombre y correo.',
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 FilledButton.icon(
                   onPressed: Backend.ready && !busy ? signIn : null,
-                  icon: const Icon(Icons.account_circle_outlined),
+                  icon: Icon(Icons.account_circle_outlined),
                   label: Text(busy ? 'Conectando…' : 'Continuar con Google'),
                 ),
                 if (!Backend.ready)
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(top: 12),
                     child: Text('Google pendiente de configurar.'),
                   ),
@@ -526,18 +440,14 @@ class _DonationPageState extends State<DonationPage> {
                   key: ValueKey('name-${user!.uid}'),
                   initialValue: user!.displayName ?? '',
                   readOnly: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Nombre de Google',
-                  ),
+                  decoration: InputDecoration(labelText: 'Nombre de Google'),
                 ),
-                const SizedBox(height: 14),
+                SizedBox(height: 14),
                 TextFormField(
                   key: ValueKey('email-${user!.uid}'),
                   initialValue: user!.email ?? '',
                   readOnly: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Correo de Google',
-                  ),
+                  decoration: InputDecoration(labelText: 'Correo de Google'),
                 ),
                 TextButton(
                   onPressed: busy
@@ -546,44 +456,44 @@ class _DonationPageState extends State<DonationPage> {
                           await Backend.auth.signOut();
                           if (mounted) setState(() => consent = false);
                         },
-                  child: const Text('Usar otra cuenta'),
+                  child: Text('Usar otra cuenta'),
                 ),
               ],
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
               TextFormField(
                 controller: model,
                 maxLength: 120,
                 enabled: !busy,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Modelo del celular (opcional)',
                   hintText: 'Ej.: Samsung Galaxy A12',
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               TextFormField(
                 controller: note,
                 maxLength: 1000,
                 maxLines: 3,
                 enabled: !busy,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Nota (opcional)',
                   hintText: 'Contanos sobre el estado del equipo.',
                 ),
               ),
-              const SizedBox(height: 24),
-              const Text(
+              SizedBox(height: 24),
+              Text(
                 '02 / Tu centro de acopio',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: ink,
+                  color: headingColor,
                 ),
               ),
-              const SizedBox(height: 10),
-              const Text(
+              SizedBox(height: 10),
+              Text(
                 'Seleccioná tu departamento o región. Por ahora solo Matagalpa tiene un centro habilitado.',
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
               Wrap(
                 spacing: 8,
                 runSpacing: 6,
@@ -599,26 +509,24 @@ class _DonationPageState extends State<DonationPage> {
                     )
                     .toList(),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               if (department == 'Matagalpa') ...[
-                const AcopioMap(),
-                const SizedBox(height: 12),
-                const Text(Acopio.locationNote),
+                AcopioMap(),
+                SizedBox(height: 12),
+                Text(Acopio.locationNote),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.school_outlined, color: brandBlue),
-                  title: const Text(Acopio.name),
-                  subtitle: const Text(
-                    'Matagalpa · Ver información del centro',
-                  ),
-                  trailing: const Icon(Icons.open_in_new),
+                  leading: Icon(Icons.school_outlined, color: accentColor),
+                  title: Text(Acopio.name),
+                  subtitle: Text('Matagalpa · Ver información del centro'),
+                  trailing: Icon(Icons.open_in_new),
                   onTap: () => openCenter(context),
                 ),
               ] else
-                const Text(
+                Text(
                   'Todavía no hay un centro de acopio disponible en este departamento o región. No se puede registrar una entrega aquí.',
                 ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
                 controlAffinity: ListTileControlAffinity.leading,
@@ -626,11 +534,11 @@ class _DonationPageState extends State<DonationPage> {
                 onChanged: busy
                     ? null
                     : (v) => setState(() => consent = v ?? false),
-                title: const Text(
+                title: Text(
                   'Autorizo guardar mi nombre, correo y los datos de esta donación para coordinar la entrega.',
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               FilledButton.icon(
                 onPressed:
                     Backend.ready &&
@@ -640,11 +548,11 @@ class _DonationPageState extends State<DonationPage> {
                         !busy
                     ? save
                     : null,
-                icon: const Icon(Icons.volunteer_activism),
+                icon: Icon(Icons.volunteer_activism),
                 label: Text(busy ? 'Procesando…' : 'Registrar donación'),
               ),
-              const SizedBox(height: 12),
-              const Text(
+              SizedBox(height: 12),
+              Text(
                 'Antes de entregar el teléfono, respaldá tu información y retirala del dispositivo.',
               ),
             ],
@@ -675,7 +583,8 @@ class CenterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Row(
+      actions: [ThemeToggle(compact: true)],
+      title: Row(
         children: [
           BrandLogo(width: 135),
           SizedBox(width: 18),
@@ -683,7 +592,7 @@ class CenterPage extends StatelessWidget {
         ],
       ),
       leading: IconButton(
-        icon: const Icon(Icons.home_outlined),
+        icon: Icon(Icons.home_outlined),
         onPressed: () =>
             Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false),
       ),
@@ -691,41 +600,41 @@ class CenterPage extends StatelessWidget {
     body: SingleChildScrollView(
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 850),
+          constraints: BoxConstraints(maxWidth: 850),
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24),
             child: Sheet(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.school_outlined, size: 48, color: brandBlue),
-                  const SizedBox(height: 18),
+                  Icon(Icons.school_outlined, size: 48, color: accentColor),
+                  SizedBox(height: 18),
                   Text(
                     Acopio.name,
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
-                  const Text('Matagalpa, Nicaragua'),
-                  const SizedBox(height: 24),
-                  const ListTile(
+                  Text('Matagalpa, Nicaragua'),
+                  SizedBox(height: 24),
+                  ListTile(
                     leading: Icon(Icons.place_outlined),
                     title: Text('Dirección'),
                     subtitle: Text(Acopio.address),
                   ),
-                  const ListTile(
+                  ListTile(
                     leading: Icon(Icons.calendar_today_outlined),
                     title: Text('Días de atención'),
                     subtitle: Text(Acopio.days),
                   ),
-                  const ListTile(
+                  ListTile(
                     leading: Icon(Icons.schedule),
                     title: Text('Horas de atención'),
                     subtitle: Text(Acopio.hours),
                   ),
-                  const SizedBox(height: 20),
-                  const AcopioMap(),
-                  const SizedBox(height: 12),
-                  const Text(Acopio.locationNote),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
+                  AcopioMap(),
+                  SizedBox(height: 12),
+                  Text(Acopio.locationNote),
+                  SizedBox(height: 20),
                   FilledButton.icon(
                     onPressed: Acopio.whatsapp.isEmpty
                         ? null
@@ -744,11 +653,11 @@ class CenterPage extends StatelessWidget {
                                 context.mounted)
                               notify(context, 'No se pudo abrir WhatsApp.');
                           },
-                    icon: const Icon(Icons.chat_outlined),
-                    label: const Text('Contactar por WhatsApp'),
+                    icon: Icon(Icons.chat_outlined),
+                    label: Text('Contactar por WhatsApp'),
                   ),
                   if (Acopio.whatsapp.isEmpty)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.only(top: 10),
                       child: Text('WhatsApp pendiente de confirmar.'),
                     ),
@@ -817,7 +726,7 @@ class _AdminPageState extends State<AdminPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Row(
+      title: Row(
         children: [
           BrandLogo(width: 135),
           SizedBox(width: 18),
@@ -825,6 +734,7 @@ class _AdminPageState extends State<AdminPage> {
         ],
       ),
       actions: [
+        ThemeToggle(compact: true),
         if (authorized)
           TextButton.icon(
             style: TextButton.styleFrom(foregroundColor: Colors.white),
@@ -832,25 +742,25 @@ class _AdminPageState extends State<AdminPage> {
               await Backend.auth.signOut();
               if (mounted) setState(() => authorized = false);
             },
-            icon: const Icon(Icons.logout),
-            label: const Text('Salir'),
+            icon: Icon(Icons.logout),
+            label: Text('Salir'),
           ),
       ],
     ),
     body: checking
-        ? const Center(child: CircularProgressIndicator())
+        ? Center(child: CircularProgressIndicator())
         : SingleChildScrollView(
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1120),
+                constraints: BoxConstraints(maxWidth: 1120),
                 child: Padding(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(24),
                   child: authorized
-                      ? const InventoryPage()
+                      ? InventoryPage()
                       : Column(
                           children: [
                             ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 480),
+                              constraints: BoxConstraints(maxWidth: 480),
                               child: Sheet(
                                 child: Form(
                                   key: loginForm,
@@ -858,32 +768,30 @@ class _AdminPageState extends State<AdminPage> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(
+                                      Icon(
                                         Icons.lock_outline,
-                                        color: brandBlue,
+                                        color: accentColor,
                                         size: 40,
                                       ),
-                                      const SizedBox(height: 20),
+                                      SizedBox(height: 20),
                                       Text(
                                         'Acceso de administrador',
                                         style: Theme.of(context)
                                             .textTheme
                                             .headlineMedium,
                                       ),
-                                      const SizedBox(height: 12),
-                                      const Text(
+                                      SizedBox(height: 12),
+                                      Text(
                                         'Ingresá con el correo y la contraseña de tu cuenta autorizada.',
                                       ),
-                                      const SizedBox(height: 24),
+                                      SizedBox(height: 24),
                                       TextFormField(
                                         controller: email,
                                         keyboardType:
                                             TextInputType.emailAddress,
-                                        autofillHints: const [
-                                          AutofillHints.username,
-                                        ],
+                                        autofillHints: [AutofillHints.username],
                                         enabled: !busy,
-                                        decoration: const InputDecoration(
+                                        decoration: InputDecoration(
                                           labelText: 'Correo electrónico',
                                         ),
                                         validator: (s) =>
@@ -894,13 +802,11 @@ class _AdminPageState extends State<AdminPage> {
                                             ? 'Ingresá un correo válido.'
                                             : null,
                                       ),
-                                      const SizedBox(height: 16),
+                                      SizedBox(height: 16),
                                       TextFormField(
                                         controller: password,
                                         obscureText: hidePassword,
-                                        autofillHints: const [
-                                          AutofillHints.password,
-                                        ],
+                                        autofillHints: [AutofillHints.password],
                                         enabled: !busy,
                                         decoration: InputDecoration(
                                           labelText: 'Contraseña',
@@ -926,7 +832,7 @@ class _AdminPageState extends State<AdminPage> {
                                           if (Backend.ready && !busy) login();
                                         },
                                       ),
-                                      const SizedBox(height: 24),
+                                      SizedBox(height: 24),
                                       FilledButton(
                                         onPressed: Backend.ready && !busy
                                             ? login
@@ -936,7 +842,7 @@ class _AdminPageState extends State<AdminPage> {
                                         ),
                                       ),
                                       if (!Backend.ready)
-                                        const Padding(
+                                        Padding(
                                           padding: EdgeInsets.only(top: 16),
                                           child: Text(
                                             'Acceso pendiente de configurar Firebase. No hay cuentas de prueba ni contraseñas predeterminadas.',
@@ -948,12 +854,12 @@ class _AdminPageState extends State<AdminPage> {
                               ),
                             ),
                             if (!Backend.ready) ...[
-                              const SizedBox(height: 32),
-                              const Text(
+                              SizedBox(height: 32),
+                              Text(
                                 'Vista previa del inventario · Sin datos reales ni guardado',
                               ),
-                              const SizedBox(height: 16),
-                              const InventoryPage(preview: true),
+                              SizedBox(height: 16),
+                              InventoryPage(preview: true),
                             ],
                           ],
                         ),
@@ -969,7 +875,7 @@ class InventoryPage extends StatelessWidget {
   const InventoryPage({super.key, this.preview = false});
   @override
   Widget build(BuildContext context) {
-    if (preview) return inventory(context, const []);
+    if (preview) return inventory(context, []);
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: Backend.db
           .collection('movements')
@@ -979,7 +885,7 @@ class InventoryPage extends StatelessWidget {
         if (snapshot.hasError)
           return Sheet(child: Text(Backend.message(snapshot.error!)));
         if (!snapshot.hasData)
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator());
         return inventory(
           context,
           snapshot.data!.docs.map((d) => d.data()).toList(),
@@ -1014,7 +920,7 @@ class InventoryPage extends StatelessWidget {
                   'Inventario de piezas',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   '$sum piezas registradas · ${names.length} tipos de componentes',
                 ),
@@ -1029,12 +935,12 @@ class InventoryPage extends StatelessWidget {
                       builder: (_) =>
                           AddPartDialog(existingNames: names.values.toList()),
                     ),
-              icon: const Icon(Icons.add),
-              label: const Text('Agregar pieza'),
+              icon: Icon(Icons.add),
+              label: Text('Agregar pieza'),
             ),
           ],
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         LayoutBuilder(
           builder: (context, constraints) {
             final columns = constraints.maxWidth >= 850
@@ -1058,21 +964,21 @@ class InventoryPage extends StatelessWidget {
                           children: [
                             Icon(
                               partIcon(entry.value),
-                              color: brandBlue,
+                              color: accentColor,
                               size: 28,
                             ),
-                            const SizedBox(height: 18),
+                            SizedBox(height: 18),
                             Text(
                               '${totals[entry.key] ?? 0}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 44,
                                 fontWeight: FontWeight.w800,
-                                color: ink,
+                                color: headingColor,
                               ),
                             ),
                             Text(
                               entry.value,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -1086,14 +992,14 @@ class InventoryPage extends StatelessWidget {
             );
           },
         ),
-        const SizedBox(height: 28),
+        SizedBox(height: 28),
         Text(
           'Historial de ingresos',
           style: Theme.of(context).textTheme.titleLarge,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         if (movements.isEmpty)
-          const Sheet(
+          Sheet(
             child: Text(
               'Aún no hay ingresos registrados. Las cantidades comienzan en cero.',
             ),
@@ -1102,7 +1008,7 @@ class InventoryPage extends StatelessWidget {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
-              columns: const [
+              columns: [
                 DataColumn(label: Text('Pieza')),
                 DataColumn(label: Text('Cantidad'), numeric: true),
                 DataColumn(label: Text('Estado / notas')),
@@ -1153,7 +1059,7 @@ class _AddPartDialogState extends State<AddPartDialog> {
   final note = TextEditingController();
   String selected = baseParts.first;
   bool busy = false;
-  static const other = '__other__';
+  static final other = '__other__';
   @override
   void dispose() {
     custom.dispose();
@@ -1196,7 +1102,7 @@ class _AddPartDialogState extends State<AddPartDialog> {
   Widget build(BuildContext context) => PopScope(
     canPop: !busy,
     child: AlertDialog(
-      title: const Text('Agregar piezas al inventario'),
+      title: Text('Agregar piezas al inventario'),
       content: SizedBox(
         width: 440,
         child: SingleChildScrollView(
@@ -1208,12 +1114,12 @@ class _AddPartDialogState extends State<AddPartDialog> {
                 DropdownButtonFormField<String>(
                   value: selected,
                   isExpanded: true,
-                  decoration: const InputDecoration(labelText: 'Tipo de pieza'),
+                  decoration: InputDecoration(labelText: 'Tipo de pieza'),
                   items: [
                     ...widget.existingNames.map(
                       (s) => DropdownMenuItem(value: s, child: Text(s)),
                     ),
-                    const DropdownMenuItem(
+                    DropdownMenuItem(
                       value: other,
                       child: Text('+ Añadir otra pieza'),
                     ),
@@ -1221,12 +1127,12 @@ class _AddPartDialogState extends State<AddPartDialog> {
                   onChanged: busy ? null : (v) => setState(() => selected = v!),
                 ),
                 if (selected == other) ...[
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   TextFormField(
                     controller: custom,
                     enabled: !busy,
                     maxLength: 80,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Nombre de la nueva pieza',
                     ),
                     validator: (v) => v == null || v.trim().isEmpty
@@ -1234,12 +1140,12 @@ class _AddPartDialogState extends State<AddPartDialog> {
                         : null,
                   ),
                 ],
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 TextFormField(
                   controller: quantity,
                   enabled: !busy,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Cantidad que ingresa',
                   ),
                   validator: (v) {
@@ -1249,13 +1155,13 @@ class _AddPartDialogState extends State<AddPartDialog> {
                         : null;
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 TextFormField(
                   controller: note,
                   enabled: !busy,
                   maxLength: 1000,
                   maxLines: 3,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Estado de las piezas / notas (opcional)',
                   ),
                 ),
@@ -1267,7 +1173,7 @@ class _AddPartDialogState extends State<AddPartDialog> {
       actions: [
         TextButton(
           onPressed: busy ? null : () => Navigator.pop(context),
-          child: const Text('Cancelar'),
+          child: Text('Cancelar'),
         ),
         FilledButton(
           onPressed: busy ? null : save,
@@ -1276,4 +1182,307 @@ class _AddPartDialogState extends State<AddPartDialog> {
       ],
     ),
   );
+}
+
+class PurposePage extends StatelessWidget {
+  final bool vision;
+  final VoidCallback onDonate;
+  const PurposePage({super.key, required this.vision, required this.onDonate});
+
+  @override
+  Widget build(BuildContext context) {
+    final title = vision ? 'Nuestra visión' : 'Nuestra misión';
+    final headline = vision
+        ? 'Imaginar un futuro.\nConstruirlo con lo que tenemos.'
+        : 'La tecnología merece\nuna segunda oportunidad.';
+    final statement = vision
+        ? 'Construir una comunidad en Nicaragua donde la tecnología se reutilice de forma responsable y se transforme en oportunidades educativas, ambientales y sociales.'
+        : 'Dar una segunda vida a los componentes de teléfonos en desuso, promoviendo la donación responsable, la innovación y el aprovechamiento tecnológico para beneficio de la comunidad.';
+    final pillars = vision
+        ? [
+            (
+              Icons.school_outlined,
+              'Aprender haciendo',
+              'Acercar la experimentación tecnológica a estudiantes y comunidades mediante proyectos que aprovechen componentes recuperados.',
+            ),
+            (
+              Icons.hub_outlined,
+              'Conectar a la comunidad',
+              'Crear vínculos entre personas que donan, centros de acopio y quienes desarrollan nuevas aplicaciones para la tecnología.',
+            ),
+            (
+              Icons.eco_outlined,
+              'Reutilizar con propósito',
+              'Promover una cultura en la que evaluar, recuperar y reutilizar sea parte del ciclo de vida de nuestros dispositivos.',
+            ),
+          ]
+        : [
+            (
+              Icons.volunteer_activism_outlined,
+              'Recibir con responsabilidad',
+              'Facilitar la donación de celulares y orientar a las personas sobre el centro de acopio y el cuidado de sus datos.',
+            ),
+            (
+              Icons.memory_outlined,
+              'Evaluar y recuperar',
+              'Identificar componentes aprovechables y registrar las piezas que ingresan para conocer su cantidad y estado.',
+            ),
+            (
+              Icons.lightbulb_outline,
+              'Transformar en posibilidades',
+              'Explorar usos educativos y comunitarios para los componentes que superen la evaluación técnica.',
+            ),
+          ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          vision ? '02 / EL FUTURO QUE IMAGINAMOS' : '01 / LO QUE NOS MUEVE',
+          style: TextStyle(
+            color: accentColor,
+            letterSpacing: 2,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 18),
+        Container(
+          padding: EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: heroColors),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: borderColor),
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final copy = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: Theme.of(context).textTheme.titleLarge),
+                  SizedBox(height: 16),
+                  Text(
+                    headline,
+                    style: TextStyle(
+                      fontSize: constraints.maxWidth > 650 ? 38 : 28,
+                      height: 1.15,
+                      fontWeight: FontWeight.w800,
+                      color: headingColor,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    statement,
+                    style: TextStyle(
+                      fontSize: 18,
+                      height: 1.6,
+                      color: mutedColor,
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  FilledButton.icon(
+                    onPressed: onDonate,
+                    icon: Icon(Icons.arrow_forward),
+                    label: Text(
+                      vision
+                          ? 'Ser parte de este futuro'
+                          : 'Quiero aportar con una donación',
+                    ),
+                  ),
+                ],
+              );
+              final photo = ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: Image.asset(
+                  vision ? 'component_gps.jpg' : 'component_motion.jpg',
+                  height: 320,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  semanticLabel: vision
+                      ? 'Ilustración de un módulo GPS sobre fondo celeste'
+                      : 'Ilustración de un sensor de movimiento MPU-6050 sobre fondo celeste',
+                ),
+              );
+              if (constraints.maxWidth >= 800)
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(flex: 6, child: copy),
+                    SizedBox(width: 32),
+                    Expanded(flex: 5, child: photo),
+                  ],
+                );
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [copy, SizedBox(height: 28), photo],
+              );
+            },
+          ),
+        ),
+        SizedBox(height: 32),
+        Text(
+          vision
+              ? 'Tres horizontes para crecer'
+              : 'Cómo llevamos nuestra misión a la práctica',
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+        SizedBox(height: 16),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth >= 850
+                ? (constraints.maxWidth - 32) / 3
+                : constraints.maxWidth;
+            return Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: pillars
+                  .map(
+                    (p) => SizedBox(
+                      width: width,
+                      child: Sheet(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(p.$1, color: accentColor, size: 30),
+                            SizedBox(height: 18),
+                            Text(
+                              p.$2,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            SizedBox(height: 12),
+                            Text(
+                              p.$3,
+                              style: TextStyle(height: 1.6, color: mutedColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            );
+          },
+        ),
+        SizedBox(height: 32),
+        Text(
+          vision
+              ? 'Componentes pequeños. Ideas que pueden crecer.'
+              : 'Una mirada a lo que podemos aprovechar',
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+        SizedBox(height: 10),
+        Text(
+          'Imágenes ilustrativas de componentes y usos posibles. Cada pieza requiere evaluación técnica antes de reutilizarse.',
+          style: TextStyle(color: mutedColor, height: 1.5),
+        ),
+        SizedBox(height: 18),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final columns = constraints.maxWidth >= 850
+                ? 3
+                : constraints.maxWidth >= 550
+                ? 2
+                : 1;
+            final width = (constraints.maxWidth - (columns - 1) * 16) / columns;
+            final components = [
+              (
+                'component_gps.jpg',
+                'GPS / Localización',
+                'Explorar proyectos de orientación, registro de recorridos y ubicación de equipos.',
+              ),
+              (
+                'component_motion.jpg',
+                'Movimiento / Orientación',
+                'Aprender sobre aceleración, inclinación y cambios de posición mediante experimentos.',
+              ),
+              (
+                'component_camera.jpg',
+                'Cámara / Observación',
+                'Imaginar herramientas de observación y aprendizaje visual con respeto a la privacidad.',
+              ),
+            ];
+            return Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: components
+                  .map(
+                    (p) => SizedBox(
+                      width: width,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: borderColor),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Image.asset(
+                              p.$1,
+                              height: 230,
+                              width: width,
+                              fit: BoxFit.cover,
+                              semanticLabel: 'Ilustración de ${p.$2}',
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    p.$2,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge,
+                                  ),
+                                  SizedBox(height: 10),
+                                  Text(
+                                    p.$3,
+                                    style: TextStyle(
+                                      color: mutedColor,
+                                      height: 1.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            );
+          },
+        ),
+        SizedBox(height: 28),
+        Sheet(
+          child: Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 24,
+            runSpacing: 16,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'El siguiente paso puede empezar con vos.',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  SizedBox(height: 8),
+                  Text('Conocé el acopio disponible en CUR UNAN Matagalpa.'),
+                ],
+              ),
+              OutlinedButton.icon(
+                onPressed: () => openCenter(context),
+                icon: Icon(Icons.place_outlined),
+                label: Text('Ver centro de acopio'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
