@@ -26,8 +26,7 @@ Widget buildEmbeddedMap() {
         frame.style.height = '100%';
         // El documento hereda el origen para que las teselas reciban Referer.
         frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-        frame.srcdoc =
-            '''<!DOCTYPE html>
+        frame.setAttribute('srcdoc', '''<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -82,7 +81,7 @@ html,body,#map{height:100%;width:100%;margin:0}body{font:14px Arial,sans-serif;b
 }());
 </script>
 </body>
-</html>''';
+</html>''');
       },
     ),
   );
