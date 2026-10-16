@@ -13,7 +13,7 @@ flutter pub get
 flutter run -d edge --web-port=5000 --dart-define-from-file=config/firebase.renovax.json
 ```
 
-La disponibilidad de cada función depende de que sus proveedores y reglas estén habilitados en la consola. El acceso con Google requiere seleccionar el correo de soporte del proyecto. La cuenta de administrador y su permiso `admins/{uid}` se crean por separado; nunca se incluyen contraseñas en el repositorio.
+Los proveedores de Google y correo/contraseña están habilitados, `localhost` está autorizado y Firestore `(default)` está creado en `nam5`, con las reglas del repositorio publicadas. La simulación de Firebase rechazó una lectura anónima del inventario. El flujo completo desde Flutter aún requiere una prueba en ejecución. La cuenta de administrador y su permiso `admins/{uid}` siguen pendientes de crear por separado; nunca se incluyen contraseñas en el repositorio.
 
 ## Identidad visual
 
