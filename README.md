@@ -2,6 +2,19 @@
 
 Aplicación Flutter web para donaciones de celulares y recuperación de componentes en Nicaragua.
 
+## Proyecto Firebase de Renovax
+
+La aplicación web `renovax-web` está registrada en el proyecto `renovax-5196d` (plan Spark). Su configuración pública se incluye en `config/firebase.renovax.json`. No contiene contraseñas ni claves de cuentas de servicio.
+
+Para ejecutar contra este proyecto desde Edge:
+
+```sh
+flutter pub get
+flutter run -d edge --web-port=5000 --dart-define-from-file=config/firebase.renovax.json
+```
+
+La disponibilidad de cada función depende de que sus proveedores y reglas estén habilitados en la consola. El acceso con Google requiere seleccionar el correo de soporte del proyecto. La cuenta de administrador y su permiso `admins/{uid}` se crean por separado; nunca se incluyen contraseñas en el repositorio.
+
 ## Identidad visual
 
 Paleta basada en la referencia enviada: azul principal `#4068AA`, azul oscuro `#1D385C`, fondo `#EDF4FF`, celeste `#E1EDFF` y bordes `#BDD0EF`. El logo original transparente está en `renovax_logo.png` y se declara como asset en `pubspec.yaml`.
