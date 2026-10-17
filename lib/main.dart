@@ -9,33 +9,55 @@ import 'map_stub.dart' if (dart.library.js_interop) 'map_web.dart';
 
 import 'backend.dart';
 import 'config.dart';
-import 'brand_theme.dart';
 
-part 'admin_inventory.dart';
+const ink = Color(0xFF1D385C);
+part 'admin_inventory.dart';53);
+const paper = Color(0xFFF5F7F2);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Backend.initialize();
-  runApp(RenovaxApp());
+  runApp(const RenovaxApp());
 }
 
 class RenovaxApp extends StatelessWidget {
   const RenovaxApp({super.key});
   @override
-  Widget build(BuildContext context) => ValueListenableBuilder<ThemeMode>(
-    valueListenable: appTheme,
-    builder: (context, mode, _) => MaterialApp(
-      title: 'Renovax · Tecnología con otra oportunidad',
-      debugShowCheckedModeBanner: false,
-      theme: buildBrandTheme(false),
-      darkTheme: buildBrandTheme(true),
-      themeMode: mode,
-      routes: {
-        '/': (_) => PublicPage(),
-        '/acopio': (_) => CenterPage(),
-        '/admin': (_) => AdminPage(),
-      },
+  Widget build(BuildContext context) => MaterialApp(
+    title: 'Renovax · Tecnología con otra oportunidad',
+    debugShowCheckedModeBanner: false,
+    theme: ThemeData(
+      useMaterial3: true,
+      scaffoldBackgroundColor: paper,
+      colorScheme: ColorScheme.fromSeed(seedColor: green),
+      textTheme: const TextTheme(
+        headlineLarge: TextStyle(
+          fontSize: 44,
+          fontWeight: FontWeight.w800,
+          color: ink,
+        ),
+        headlineMedium: TextStyle(
+          fontSize: 30,
+          fontWeight: FontWeight.w700,
+          color: ink,
+        ),
+        titleLarge: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w700,
+          color: ink,
+        ),
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        border: OutlineInputBorder(),
+        filled: true,
+        fillColor: Colors.white,
+      ),
     ),
+    routes: {
+      '/': (_) => const PublicPage(),
+      '/acopio': (_) => const CenterPage(),
+      '/admin': (_) => const AdminPage(),
+    },
   );
 }
 
@@ -49,41 +71,13 @@ class Sheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     width: double.infinity,
-    padding: EdgeInsets.all(24),
+    padding: const EdgeInsets.all(24),
     decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.surface,
+      color: Colors.white,
       borderRadius: BorderRadius.circular(22),
-      border: Border.all(color: borderColor),
+      border: Border.all(color: const Color(0xFFDDE5DC)),
     ),
     child: child,
-  );
-}
-
-/// El archivo original conserva su transparencia y márgenes. El recorte es solo
-/// de presentación para que el logo horizontal se lea sin modificar la imagen.
-class BrandLogo extends StatelessWidget {
-  final double width;
-  const BrandLogo({super.key, this.width = 200});
-  @override
-  Widget build(BuildContext context) => SizedBox(
-    width: width,
-    height: width * .27,
-    child: ClipRect(
-      child: OverflowBox(
-        alignment: Alignment.center,
-        minWidth: width * 1.28,
-        maxWidth: width * 1.28,
-        minHeight: width * 1.28,
-        maxHeight: width * 1.28,
-        child: Image.asset(
-          'renovax_logo.png',
-          width: width * 1.28,
-          height: width * 1.28,
-          fit: BoxFit.contain,
-          semanticLabel: 'Renovax',
-        ),
-      ),
-    ),
   );
 }
 
@@ -95,25 +89,37 @@ class PublicPage extends StatefulWidget {
 
 class _PublicPageState extends State<PublicPage> {
   int section = 0;
-  static final labels = ['Inicio', 'Misión', 'Visión', 'Donaciones'];
+  static const labels = ['Inicio', 'Misión', 'Visión', 'Donaciones'];
   @override
   Widget build(BuildContext context) => Scaffold(
     body: SafeArea(
       child: Column(
         children: [
           Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: headerColors),
-            ),
+            color: Colors.white,
             width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Wrap(
               alignment: WrapAlignment.spaceBetween,
               crossAxisAlignment: WrapCrossAlignment.center,
               spacing: 20,
               runSpacing: 12,
               children: [
-                BrandLogo(),
+                const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.recycling, color: green, size: 32),
+                    SizedBox(width: 8),
+                    Text(
+                      'renovax',
+                      style: TextStyle(
+                        fontSize: 27,
+                        fontWeight: FontWeight.w900,
+                        color: ink,
+                      ),
+                    ),
+                  ],
+                ),
                 Wrap(
                   spacing: 6,
                   children: List.generate(
@@ -121,24 +127,18 @@ class _PublicPageState extends State<PublicPage> {
                     (i) => TextButton(
                       onPressed: () => setState(() => section = i),
                       style: TextButton.styleFrom(
-                        foregroundColor: Colors.white,
                         backgroundColor: section == i
-                            ? navSelectionColor
-                            : Colors.transparent,
+                            ? const Color(0xFFE5EFDF)
+                            : null,
                       ),
                       child: Text(labels[i]),
                     ),
                   ),
                 ),
-                ThemeToggle(),
                 OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: BorderSide(color: borderColor),
-                  ),
                   onPressed: () => Navigator.pushNamed(context, '/admin'),
-                  icon: Icon(Icons.lock_outline, size: 18),
-                  label: Text('Administración'),
+                  icon: const Icon(Icons.lock_outline, size: 18),
+                  label: const Text('Administración'),
                 ),
               ],
             ),
@@ -147,9 +147,9 @@ class _PublicPageState extends State<PublicPage> {
             child: SingleChildScrollView(
               child: Center(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 1120),
+                  constraints: const BoxConstraints(maxWidth: 1120),
                   child: Padding(
-                    padding: EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -159,65 +159,57 @@ class _PublicPageState extends State<PublicPage> {
                               Backend.startupError ?? 'Vista previa · La conexión con Google y el guardado se habilitarán al configurar Firebase.',
                             ),
                           ),
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
                         ],
                         if (section == 0) ...[
                           Container(
                             width: double.infinity,
-                            padding: EdgeInsets.all(32),
+                            padding: const EdgeInsets.all(32),
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(colors: heroColors),
-                              border: Border.all(color: borderColor),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: glowColor,
-                                  blurRadius: 24,
-                                  offset: Offset(0, 8),
-                                ),
-                              ],
+                              color: ink,
                               borderRadius: BorderRadius.circular(28),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
+                                const Text(
                                   'RECUPERAR · TRANSFORMAR · CONECTAR',
                                   style: TextStyle(
-                                    color: accentColor,
+                                    color: Color(0xFFBCE89E),
                                     letterSpacing: 2,
                                     fontSize: 12,
                                   ),
                                 ),
-                                SizedBox(height: 24),
-                                Text(
+                                const SizedBox(height: 24),
+                                const Text(
                                   'Tu celular en desuso.\nUna nueva posibilidad.',
                                   style: TextStyle(
-                                    color: headingColor,
+                                    color: Colors.white,
                                     fontSize: 44,
                                     height: 1.1,
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
-                                SizedBox(height: 20),
-                                Text(
+                                const SizedBox(height: 20),
+                                const Text(
                                   'Recuperamos componentes de teléfonos para darles otra vida en proyectos útiles para nuestra comunidad.',
                                   style: TextStyle(
-                                    color: mutedColor,
+                                    color: Color(0xFFD4E3DA),
                                     fontSize: 18,
                                   ),
                                 ),
-                                SizedBox(height: 28),
+                                const SizedBox(height: 28),
                                 FilledButton.icon(
                                   style: FilledButton.styleFrom(
-                                    backgroundColor: accentColor,
-                                    foregroundColor: buttonTextColor,
+                                    backgroundColor: const Color(0xFFCAEDAA),
+                                    foregroundColor: ink,
                                   ),
                                   onPressed: () => setState(() => section = 3),
-                                  icon: Icon(Icons.arrow_forward),
-                                  label: Text('Quiero donar un celular'),
+                                  icon: const Icon(Icons.arrow_forward),
+                                  label: const Text('Quiero donar un celular'),
                                 ),
-                                SizedBox(height: 28),
-                                Wrap(
+                                const SizedBox(height: 28),
+                                const Wrap(
                                   spacing: 24,
                                   runSpacing: 12,
                                   children: [
@@ -238,16 +230,16 @@ class _PublicPageState extends State<PublicPage> {
                               ],
                             ),
                           ),
-                          SizedBox(height: 32),
+                          const SizedBox(height: 32),
                           Text(
                             'Cada componente cuenta',
                             style: Theme.of(context).textTheme.headlineMedium,
                           ),
-                          SizedBox(height: 10),
-                          Text(
+                          const SizedBox(height: 10),
+                          const Text(
                             'Estas son las piezas que recuperamos y registramos en nuestro inventario.',
                           ),
-                          SizedBox(height: 18),
+                          const SizedBox(height: 18),
                           Wrap(
                             spacing: 10,
                             runSpacing: 10,
@@ -260,8 +252,8 @@ class _PublicPageState extends State<PublicPage> {
                                 )
                                 .toList(),
                           ),
-                          SizedBox(height: 28),
-                          Sheet(
+                          const SizedBox(height: 28),
+                          const Sheet(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -270,7 +262,7 @@ class _PublicPageState extends State<PublicPage> {
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
-                                    color: headingColor,
+                                    color: ink,
                                   ),
                                 ),
                                 SizedBox(height: 16),
@@ -282,16 +274,50 @@ class _PublicPageState extends State<PublicPage> {
                           ),
                         ],
                         if (section == 1 || section == 2)
-                          PurposePage(
-                            vision: section == 2,
-                            onDonate: () => setState(() => section = 3),
+                          Sheet(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  section == 1
+                                      ? Icons.spa_outlined
+                                      : Icons.public,
+                                  size: 48,
+                                  color: green,
+                                ),
+                                const SizedBox(height: 20),
+                                Text(
+                                  section == 1
+                                      ? 'Nuestra misión'
+                                      : 'Nuestra visión',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineLarge,
+                                ),
+                                const SizedBox(height: 20),
+                                Text(
+                                  section == 1
+                                      ? 'Dar una segunda vida a los componentes de teléfonos en desuso, promoviendo la donación responsable, la innovación y el aprovechamiento tecnológico para beneficio de la comunidad.'
+                                      : 'Construir una comunidad en Nicaragua donde la tecnología se reutilice de forma responsable y se transforme en oportunidades educativas, ambientales y sociales.',
+                                  style: const TextStyle(
+                                    fontSize: 21,
+                                    height: 1.6,
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+                                FilledButton(
+                                  onPressed: () => setState(() => section = 3),
+                                  child: const Text('Sumarme con una donación'),
+                                ),
+                              ],
+                            ),
                           ),
-                        if (section == 3) DonationPage(),
-                        SizedBox(height: 40),
-                        Divider(),
-                        Text(
+                        if (section == 3) const DonationPage(),
+                        const SizedBox(height: 40),
+                        const Divider(),
+                        const Text(
                           'RENOVAX  /  Tecnología con otra oportunidad',
-                          style: TextStyle(color: accentColor),
+                          style: TextStyle(color: green),
                         ),
                       ],
                     ),
@@ -377,7 +403,7 @@ class _DonationPageState extends State<DonationPage> {
         'model': model.text.trim(),
         'note': note.text.trim(),
         'department': department,
-        'center': Acopio.id,
+        'center': 'matagalpa-el-progreso',
         'createdAt': FieldValue.serverTimestamp(),
       });
       model.clear();
@@ -404,52 +430,56 @@ class _DonationPageState extends State<DonationPage> {
         'Una donación. Muchas posibilidades.',
         style: Theme.of(context).textTheme.headlineMedium,
       ),
-      SizedBox(height: 10),
-      Text('Registrá tu equipo y encontrá dónde entregarlo.'),
-      SizedBox(height: 24),
+      const SizedBox(height: 10),
+      const Text('Registrá tu equipo y encontrá dónde entregarlo.'),
+      const SizedBox(height: 24),
       Sheet(
         child: Form(
           key: form,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 '01 / Tus datos',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: headingColor,
+                  color: ink,
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               if (!googleUser) ...[
-                Text(
+                const Text(
                   'Iniciá sesión con Google para completar automáticamente tu nombre y correo.',
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 FilledButton.icon(
                   onPressed: Backend.ready && !busy ? signIn : null,
-                  icon: Icon(Icons.account_circle_outlined),
+                  icon: const Icon(Icons.account_circle_outlined),
                   label: Text(busy ? 'Conectando…' : 'Continuar con Google'),
                 ),
                 if (!Backend.ready)
-                  Padding(
+                  const Padding(
                     padding: EdgeInsets.only(top: 12),
-                    child: Text('Google pendiente de configurar.'),
+        'center': Acopio.id,ext('Google pendiente de configurar.'),
                   ),
               ] else ...[
                 TextFormField(
                   key: ValueKey('name-${user!.uid}'),
                   initialValue: user!.displayName ?? '',
                   readOnly: true,
-                  decoration: InputDecoration(labelText: 'Nombre de Google'),
+                  decoration: const InputDecoration(
+                    labelText: 'Nombre de Google',
+                  ),
                 ),
-                SizedBox(height: 14),
+                const SizedBox(height: 14),
                 TextFormField(
                   key: ValueKey('email-${user!.uid}'),
                   initialValue: user!.email ?? '',
                   readOnly: true,
-                  decoration: InputDecoration(labelText: 'Correo de Google'),
+                  decoration: const InputDecoration(
+                    labelText: 'Correo de Google',
+                  ),
                 ),
                 TextButton(
                   onPressed: busy
@@ -458,44 +488,44 @@ class _DonationPageState extends State<DonationPage> {
                           await Backend.auth.signOut();
                           if (mounted) setState(() => consent = false);
                         },
-                  child: Text('Usar otra cuenta'),
+                  child: const Text('Usar otra cuenta'),
                 ),
               ],
-              SizedBox(height: 18),
+              const SizedBox(height: 18),
               TextFormField(
                 controller: model,
                 maxLength: 120,
                 enabled: !busy,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Modelo del celular (opcional)',
                   hintText: 'Ej.: Samsung Galaxy A12',
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: note,
                 maxLength: 1000,
                 maxLines: 3,
                 enabled: !busy,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Nota (opcional)',
                   hintText: 'Contanos sobre el estado del equipo.',
                 ),
               ),
-              SizedBox(height: 24),
-              Text(
+              const SizedBox(height: 24),
+              const Text(
                 '02 / Tu centro de acopio',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: headingColor,
+                  color: ink,
                 ),
               ),
-              SizedBox(height: 10),
-              Text(
+              const SizedBox(height: 10),
+              const Text(
                 'Seleccioná tu departamento o región. Por ahora solo Matagalpa tiene un centro habilitado.',
               ),
-              SizedBox(height: 14),
+              const SizedBox(height: 14),
               Wrap(
                 spacing: 8,
                 runSpacing: 6,
@@ -511,24 +541,25 @@ class _DonationPageState extends State<DonationPage> {
                     )
                     .toList(),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               if (department == 'Matagalpa') ...[
-                AcopioMap(),
-                SizedBox(height: 12),
-                Text(Acopio.locationNote),
+                const AcopioMap(),
+                const SizedBox(height: 12),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: Icon(Icons.school_outlined, color: accentColor),
-                  title: Text(Acopio.name),
-                  subtitle: Text('Matagalpa · Ver información del centro'),
-                  trailing: Icon(Icons.open_in_new),
+                  leading: const Icon(Icons.school_outlined, color: green),
+                  title: const Text(Acopio.name),
+                  subtitle: const Text(
+                    'Matagalpa · Ver información del centro',
+                  ),
+                  trailing: const Icon(Icons.open_in_new),
                   onTap: () => openCenter(context),
                 ),
               ] else
-                Text(
+                const Text(
                   'Todavía no hay un centro de acopio disponible en este departamento o región. No se puede registrar una entrega aquí.',
                 ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
                 controlAffinity: ListTileControlAffinity.leading,
@@ -536,11 +567,11 @@ class _DonationPageState extends State<DonationPage> {
                 onChanged: busy
                     ? null
                     : (v) => setState(() => consent = v ?? false),
-                title: Text(
+                title: const Text(
                   'Autorizo guardar mi nombre, correo y los datos de esta donación para coordinar la entrega.',
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               FilledButton.icon(
                 onPressed:
                     Backend.ready &&
@@ -550,11 +581,11 @@ class _DonationPageState extends State<DonationPage> {
                         !busy
                     ? save
                     : null,
-                icon: Icon(Icons.volunteer_activism),
+                icon: const Icon(Icons.volunteer_activism),
                 label: Text(busy ? 'Procesando…' : 'Registrar donación'),
               ),
-              SizedBox(height: 12),
-              Text(
+              const SizedBox(height: 12),
+              const Text(
                 'Antes de entregar el teléfono, respaldá tu información y retirala del dispositivo.',
               ),
             ],
@@ -576,6 +607,42 @@ class AcopioMap extends StatelessWidget {
   const AcopioMap({super.key});
   @override
   Widget build(BuildContext context) {
+    if (Acopio.mapsKey.isEmpty || Acopio.placeId.isEmpty) {
+      return Container(
+        height: 220,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: const Color(0xFFE7EEDF),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.map_outlined, size: 42, color: green),
+                const SizedBox(height: 12),
+                const Text(
+                  'Escuela El Progreso · Matagalpa',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Mapa pendiente de la ubicación confirmada y de la clave de Google Maps.',
+                  textAlign: TextAlign.center,
+                ),
+                TextButton(
+                  onPressed: () => openCenter(context),
+                  child: const Text('Ver información del centro'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     return buildEmbeddedMap();
   }
 }
@@ -585,16 +652,9 @@ class CenterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      actions: [ThemeToggle(compact: true)],
-      title: Row(
-        children: [
-          BrandLogo(width: 135),
-          SizedBox(width: 18),
-          Flexible(child: Text('Centro de acopio')),
-        ],
-      ),
+      title: const Text('Centro de acopio'),
       leading: IconButton(
-        icon: Icon(Icons.home_outlined),
+        icon: const Icon(Icons.home_outlined),
         onPressed: () =>
             Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false),
       ),
@@ -602,41 +662,39 @@ class CenterPage extends StatelessWidget {
     body: SingleChildScrollView(
       child: Center(
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 850),
+          constraints: const BoxConstraints(maxWidth: 850),
           child: Padding(
-            padding: EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
             child: Sheet(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.school_outlined, size: 48, color: accentColor),
-                  SizedBox(height: 18),
+                  const Icon(Icons.school_outlined, size: 48, color: green),
+                  const SizedBox(height: 18),
                   Text(
                     Acopio.name,
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
-                  Text('Matagalpa, Nicaragua'),
-                  SizedBox(height: 24),
-                  ListTile(
+                  const Text('Matagalpa, Nicaragua'),
+                  const SizedBox(height: 24),
+                  const ListTile(
                     leading: Icon(Icons.place_outlined),
                     title: Text('Dirección'),
                     subtitle: Text(Acopio.address),
                   ),
-                  ListTile(
+                  const ListTile(
                     leading: Icon(Icons.calendar_today_outlined),
                     title: Text('Días de atención'),
                     subtitle: Text(Acopio.days),
                   ),
-                  ListTile(
+                  const ListTile(
                     leading: Icon(Icons.schedule),
                     title: Text('Horas de atención'),
                     subtitle: Text(Acopio.hours),
                   ),
-                  SizedBox(height: 20),
-                  AcopioMap(),
-                  SizedBox(height: 12),
-                  Text(Acopio.locationNote),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
+                  const AcopioMap(),
+                  const SizedBox(height: 20),
                   FilledButton.icon(
                     onPressed: Acopio.whatsapp.isEmpty
                         ? null
@@ -655,11 +713,11 @@ class CenterPage extends StatelessWidget {
                                 context.mounted)
                               notify(context, 'No se pudo abrir WhatsApp.');
                           },
-                    icon: Icon(Icons.chat_outlined),
-                    label: Text('Contactar por WhatsApp'),
+                    icon: const Icon(Icons.chat_outlined),
+                    label: const Text('Contactar por WhatsApp'),
                   ),
                   if (Acopio.whatsapp.isEmpty)
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.only(top: 10),
                       child: Text('WhatsApp pendiente de confirmar.'),
                     ),
@@ -728,93 +786,33 @@ class _AdminPageState extends State<AdminPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: Row(
-        children: [
-          BrandLogo(width: 135),
-          SizedBox(width: 18),
-          Flexible(child: Text('Administración')),
-        ],
-      ),
+      title: const Text('Renovax / Administración'),
       actions: [
-        ThemeToggle(compact: true),
         if (authorized)
           TextButton.icon(
-            style: TextButton.styleFrom(foregroundColor: Colors.white),
             onPressed: () async {
               await Backend.auth.signOut();
               if (mounted) setState(() => authorized = false);
             },
-            icon: Icon(Icons.logout),
-            label: Text('Salir'),
+            icon: const Icon(Icons.logout),
+            label: const Text('Salir'),
           ),
       ],
     ),
     body: checking
-        ? Center(child: CircularProgressIndicator())
+        ? const Center(child: CircularProgressIndicator())
         : SingleChildScrollView(
             child: Center(
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 1120),
+                constraints: const BoxConstraints(maxWidth: 1120),
                 child: Padding(
-                  padding: EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(24),
                   child: authorized
-                      ? AdminInventoryPanel()
+                      ? const InventoryPage()
                       : Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Container(
-                              padding: EdgeInsets.all(24),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(colors: heroColors),
-                                borderRadius: BorderRadius.circular(22),
-                                border: Border.all(color: borderColor),
-                              ),
-                              child: Wrap(
-                                spacing: 18,
-                                runSpacing: 16,
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                children: [
-                                  Container(
-                                    width: 56,
-                                    height: 56,
-                                    decoration: BoxDecoration(
-                                      color: accentColor.withValues(alpha: .12),
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: Icon(
-                                      Icons.admin_panel_settings_outlined,
-                                      color: accentColor,
-                                      size: 30,
-                                    ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'PANEL DE CONTROL',
-                                        style: TextStyle(
-                                          color: accentColor,
-                                          fontSize: 12,
-                                          letterSpacing: 1.6,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      SizedBox(height: 6),
-                                      Text(
-                                        'Gestioná el inventario de Renovax',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleLarge,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 24),
                             ConstrainedBox(
-                              constraints: BoxConstraints(maxWidth: 480),
+                              constraints: const BoxConstraints(maxWidth: 480),
                               child: Sheet(
                                 child: Form(
                                   key: loginForm,
@@ -822,39 +820,32 @@ class _AdminPageState extends State<AdminPage> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Container(
-                                        width: 52,
-                                        height: 52,
-                                        decoration: BoxDecoration(
-                                          color: panelTint,
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                        ),
-                                        child: Icon(
-                                          Icons.lock_outline,
-                                          color: accentColor,
-                                          size: 28,
-                                        ),
+                                      const Icon(
+                                        Icons.lock_outline,
+                                        color: green,
+                                        size: 40,
                                       ),
-                                      SizedBox(height: 20),
+                                      const SizedBox(height: 20),
                                       Text(
                                         'Acceso de administrador',
                                         style: Theme.of(context)
                                             .textTheme
                                             .headlineMedium,
                                       ),
-                                      SizedBox(height: 12),
-                                      Text(
+                                      const SizedBox(height: 12),
+                                      const Text(
                                         'Ingresá con el correo y la contraseña de tu cuenta autorizada.',
                                       ),
-                                      SizedBox(height: 24),
+                                      const SizedBox(height: 24),
                                       TextFormField(
                                         controller: email,
                                         keyboardType:
                                             TextInputType.emailAddress,
-                                        autofillHints: [AutofillHints.username],
+                                        autofillHints: const [
+                                          AutofillHints.username,
+                                        ],
                                         enabled: !busy,
-                                        decoration: InputDecoration(
+                                        decoration: const InputDecoration(
                                           labelText: 'Correo electrónico',
                                         ),
                                         validator: (s) =>
@@ -865,11 +856,13 @@ class _AdminPageState extends State<AdminPage> {
                                             ? 'Ingresá un correo válido.'
                                             : null,
                                       ),
-                                      SizedBox(height: 16),
+                                      const SizedBox(height: 16),
                                       TextFormField(
                                         controller: password,
                                         obscureText: hidePassword,
-                                        autofillHints: [AutofillHints.password],
+                                        autofillHints: const [
+                                          AutofillHints.password,
+                                        ],
                                         enabled: !busy,
                                         decoration: InputDecoration(
                                           labelText: 'Contraseña',
@@ -895,20 +888,17 @@ class _AdminPageState extends State<AdminPage> {
                                           if (Backend.ready && !busy) login();
                                         },
                                       ),
-                                      SizedBox(height: 24),
+                                      const SizedBox(height: 24),
                                       FilledButton(
                                         onPressed: Backend.ready && !busy
                                             ? login
                                             : null,
-                                        style: FilledButton.styleFrom(
-                                          minimumSize: Size.fromHeight(52),
-                                        ),
                                         child: Text(
                                           busy ? 'Verificando…' : 'Ingresar',
                                         ),
                                       ),
                                       if (!Backend.ready)
-                                        Padding(
+                                        const Padding(
                                           padding: EdgeInsets.only(top: 16),
                                           child: Text(
                                             'Acceso pendiente de configurar Firebase. No hay cuentas de prueba ni contraseñas predeterminadas.',
@@ -920,36 +910,12 @@ class _AdminPageState extends State<AdminPage> {
                               ),
                             ),
                             if (!Backend.ready) ...[
-                              SizedBox(height: 32),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.visibility_outlined,
-                                    color: accentColor,
-                                    size: 20,
-                                  ),
-                                  SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      'Vista previa del inventario',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge,
-                                    ),
-                                  ),
-                                  Text(
-                                    'SIN GUARDAR',
-                                    style: TextStyle(
-                                      color: mutedColor,
-                                      fontSize: 11,
-                                      letterSpacing: 1,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(height: 32),
+                              const Text(
+                                'Vista previa del inventario · Sin datos reales ni guardado',
                               ),
-                              SizedBox(height: 16),
-                              AdminInventoryPanel(preview: true),
+                              const SizedBox(height: 16),
+                              const InventoryPage(preview: true),
                             ],
                           ],
                         ),
@@ -965,7 +931,7 @@ class InventoryPage extends StatelessWidget {
   const InventoryPage({super.key, this.preview = false});
   @override
   Widget build(BuildContext context) {
-    if (preview) return inventory(context, []);
+    if (preview) return inventory(context, const []);
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: Backend.db
           .collection('movements')
@@ -975,7 +941,7 @@ class InventoryPage extends StatelessWidget {
         if (snapshot.hasError)
           return Sheet(child: Text(Backend.message(snapshot.error!)));
         if (!snapshot.hasData)
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         return inventory(
           context,
           snapshot.data!.docs.map((d) => d.data()).toList(),
@@ -1007,18 +973,12 @@ class InventoryPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'PANEL DE CONTROL',
-                  style: TextStyle(
-                    color: accentColor,
-                    fontSize: 12,
-                    letterSpacing: 1.6,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                SizedBox(height: 6),
-                Text(
                   'Inventario de piezas',
                   style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '$sum piezas registradas · ${names.length} tipos de componentes',
                 ),
               ],
             ),
@@ -1031,44 +991,12 @@ class InventoryPage extends StatelessWidget {
                       builder: (_) =>
                           AddPartDialog(existingNames: names.values.toList()),
                     ),
-              icon: Icon(Icons.add),
-              label: Text('Agregar pieza'),
+              icon: const Icon(Icons.add),
+              label: const Text('Agregar pieza'),
             ),
           ],
         ),
-        SizedBox(height: 20),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final compact = constraints.maxWidth < 560;
-            final width = compact
-                ? constraints.maxWidth
-                : (constraints.maxWidth - 16) / 2;
-            return Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              children: [
-                _InventoryMetric(
-                  width: width,
-                  icon: Icons.inventory_2_outlined,
-                  label: 'Piezas registradas',
-                  value: '$sum',
-                ),
-                _InventoryMetric(
-                  width: width,
-                  icon: Icons.category_outlined,
-                  label: 'Tipos de componentes',
-                  value: '${names.length}',
-                ),
-              ],
-            );
-          },
-        ),
-        SizedBox(height: 28),
-        Text(
-          'Componentes',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        SizedBox(height: 12),
+        const SizedBox(height: 24),
         LayoutBuilder(
           builder: (context, constraints) {
             final columns = constraints.maxWidth >= 850
@@ -1090,31 +1018,19 @@ class InventoryPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: panelTint,
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: Icon(
-                                partIcon(entry.value),
-                                color: accentColor,
-                                size: 24,
-                              ),
-                            ),
-                            SizedBox(height: 18),
+                            Icon(partIcon(entry.value), color: green, size: 28),
+                            const SizedBox(height: 18),
                             Text(
                               '${totals[entry.key] ?? 0}',
-                              style: TextStyle(
-                                fontSize: 38,
+                              style: const TextStyle(
+                                fontSize: 44,
                                 fontWeight: FontWeight.w800,
-                                color: headingColor,
+                                color: ink,
                               ),
                             ),
                             Text(
                               entry.value,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -1128,67 +1044,57 @@ class InventoryPage extends StatelessWidget {
             );
           },
         ),
+        const SizedBox(height: 28),
+        Text(
+          'Historial de ingresos',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 12),
+        if (movements.isEmpty)
+          const Sheet(
+            child: Text(
+              'Aún no hay ingresos registrados. Las cantidades comienzan en cero.',
+            ),
+          )
+        else
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              columns: const [
+                DataColumn(label: Text('Pieza')),
+                DataColumn(label: Text('Cantidad'), numeric: true),
+                DataColumn(label: Text('Estado / notas')),
+                DataColumn(label: Text('Fecha')),
+              ],
+              rows: movements.map((row) {
+                final stamp = row['createdAt'] as Timestamp?;
+                final date = stamp?.toDate().toLocal();
+                final label = date == null
+                    ? 'Guardando…'
+                    : '${date.day}/${date.month}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+                return DataRow(
+                  cells: [
+                    DataCell(Text(row['name'] as String)),
+                    DataCell(Text('${row['quantity']}')),
+                    DataCell(
+                      SizedBox(
+                        width: 250,
+                        child: Text(
+                          (row['note'] as String).isEmpty
+                              ? 'Sin notas'
+                              : row['note'] as String,
+                        ),
+                      ),
+                    ),
+                    DataCell(Text(label)),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
       ],
     );
   }
-}
-
-class _InventoryMetric extends StatelessWidget {
-  final double width;
-  final IconData icon;
-  final String label;
-  final String value;
-  const _InventoryMetric({
-    required this.width,
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) => Container(
-    width: width,
-    padding: EdgeInsets.all(20),
-    decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: borderColor),
-      boxShadow: [
-        BoxShadow(color: glowColor, blurRadius: 18, offset: Offset(0, 5)),
-      ],
-    ),
-    child: Row(
-      children: [
-        Container(
-          width: 46,
-          height: 46,
-          decoration: BoxDecoration(
-            color: panelTint,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Icon(icon, color: accentColor),
-        ),
-        SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: TextStyle(color: mutedColor)),
-              SizedBox(height: 4),
-              Text(
-                value,
-                style: TextStyle(
-                  color: headingColor,
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
 }
 
 class AddPartDialog extends StatefulWidget {
@@ -1205,7 +1111,7 @@ class _AddPartDialogState extends State<AddPartDialog> {
   final note = TextEditingController();
   String selected = baseParts.first;
   bool busy = false;
-  static final other = '__other__';
+  static const other = '__other__';
   @override
   void dispose() {
     custom.dispose();
@@ -1248,7 +1154,7 @@ class _AddPartDialogState extends State<AddPartDialog> {
   Widget build(BuildContext context) => PopScope(
     canPop: !busy,
     child: AlertDialog(
-      title: Text('Agregar piezas al inventario'),
+      title: const Text('Agregar piezas al inventario'),
       content: SizedBox(
         width: 440,
         child: SingleChildScrollView(
@@ -1260,12 +1166,12 @@ class _AddPartDialogState extends State<AddPartDialog> {
                 DropdownButtonFormField<String>(
                   value: selected,
                   isExpanded: true,
-                  decoration: InputDecoration(labelText: 'Tipo de pieza'),
+                  decoration: const InputDecoration(labelText: 'Tipo de pieza'),
                   items: [
                     ...widget.existingNames.map(
                       (s) => DropdownMenuItem(value: s, child: Text(s)),
                     ),
-                    DropdownMenuItem(
+                    const DropdownMenuItem(
                       value: other,
                       child: Text('+ Añadir otra pieza'),
                     ),
@@ -1273,12 +1179,12 @@ class _AddPartDialogState extends State<AddPartDialog> {
                   onChanged: busy ? null : (v) => setState(() => selected = v!),
                 ),
                 if (selected == other) ...[
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextFormField(
                     controller: custom,
                     enabled: !busy,
                     maxLength: 80,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Nombre de la nueva pieza',
                     ),
                     validator: (v) => v == null || v.trim().isEmpty
@@ -1286,12 +1192,12 @@ class _AddPartDialogState extends State<AddPartDialog> {
                         : null,
                   ),
                 ],
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: quantity,
                   enabled: !busy,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Cantidad que ingresa',
                   ),
                   validator: (v) {
@@ -1301,13 +1207,13 @@ class _AddPartDialogState extends State<AddPartDialog> {
                         : null;
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: note,
                   enabled: !busy,
                   maxLength: 1000,
                   maxLines: 3,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Estado de las piezas / notas (opcional)',
                   ),
                 ),
@@ -1319,7 +1225,7 @@ class _AddPartDialogState extends State<AddPartDialog> {
       actions: [
         TextButton(
           onPressed: busy ? null : () => Navigator.pop(context),
-          child: Text('Cancelar'),
+          child: const Text('Cancelar'),
         ),
         FilledButton(
           onPressed: busy ? null : save,
@@ -1328,307 +1234,4 @@ class _AddPartDialogState extends State<AddPartDialog> {
       ],
     ),
   );
-}
-
-class PurposePage extends StatelessWidget {
-  final bool vision;
-  final VoidCallback onDonate;
-  const PurposePage({super.key, required this.vision, required this.onDonate});
-
-  @override
-  Widget build(BuildContext context) {
-    final title = vision ? 'Nuestra visión' : 'Nuestra misión';
-    final headline = vision
-        ? 'Imaginar un futuro.\nConstruirlo con lo que tenemos.'
-        : 'La tecnología merece\nuna segunda oportunidad.';
-    final statement = vision
-        ? 'Construir una comunidad en Nicaragua donde la tecnología se reutilice de forma responsable y se transforme en oportunidades educativas, ambientales y sociales.'
-        : 'Dar una segunda vida a los componentes de teléfonos en desuso, promoviendo la donación responsable, la innovación y el aprovechamiento tecnológico para beneficio de la comunidad.';
-    final pillars = vision
-        ? [
-            (
-              Icons.school_outlined,
-              'Aprender haciendo',
-              'Acercar la experimentación tecnológica a estudiantes y comunidades mediante proyectos que aprovechen componentes recuperados.',
-            ),
-            (
-              Icons.hub_outlined,
-              'Conectar a la comunidad',
-              'Crear vínculos entre personas que donan, centros de acopio y quienes desarrollan nuevas aplicaciones para la tecnología.',
-            ),
-            (
-              Icons.eco_outlined,
-              'Reutilizar con propósito',
-              'Promover una cultura en la que evaluar, recuperar y reutilizar sea parte del ciclo de vida de nuestros dispositivos.',
-            ),
-          ]
-        : [
-            (
-              Icons.volunteer_activism_outlined,
-              'Recibir con responsabilidad',
-              'Facilitar la donación de celulares y orientar a las personas sobre el centro de acopio y el cuidado de sus datos.',
-            ),
-            (
-              Icons.memory_outlined,
-              'Evaluar y recuperar',
-              'Identificar componentes aprovechables y registrar las piezas que ingresan para conocer su cantidad y estado.',
-            ),
-            (
-              Icons.lightbulb_outline,
-              'Transformar en posibilidades',
-              'Explorar usos educativos y comunitarios para los componentes que superen la evaluación técnica.',
-            ),
-          ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          vision ? '02 / EL FUTURO QUE IMAGINAMOS' : '01 / LO QUE NOS MUEVE',
-          style: TextStyle(
-            color: accentColor,
-            letterSpacing: 2,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(height: 18),
-        Container(
-          padding: EdgeInsets.all(28),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(colors: heroColors),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: borderColor),
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final copy = Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: Theme.of(context).textTheme.titleLarge),
-                  SizedBox(height: 16),
-                  Text(
-                    headline,
-                    style: TextStyle(
-                      fontSize: constraints.maxWidth > 650 ? 38 : 28,
-                      height: 1.15,
-                      fontWeight: FontWeight.w800,
-                      color: headingColor,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    statement,
-                    style: TextStyle(
-                      fontSize: 18,
-                      height: 1.6,
-                      color: mutedColor,
-                    ),
-                  ),
-                  SizedBox(height: 24),
-                  FilledButton.icon(
-                    onPressed: onDonate,
-                    icon: Icon(Icons.arrow_forward),
-                    label: Text(
-                      vision
-                          ? 'Ser parte de este futuro'
-                          : 'Quiero aportar con una donación',
-                    ),
-                  ),
-                ],
-              );
-              final photo = ClipRRect(
-                borderRadius: BorderRadius.circular(18),
-                child: Image.asset(
-                  vision ? 'component_gps.jpg' : 'component_motion.jpg',
-                  height: 320,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  semanticLabel: vision
-                      ? 'Ilustración de un módulo GPS sobre fondo celeste'
-                      : 'Ilustración de un sensor de movimiento MPU-6050 sobre fondo celeste',
-                ),
-              );
-              if (constraints.maxWidth >= 800)
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(flex: 6, child: copy),
-                    SizedBox(width: 32),
-                    Expanded(flex: 5, child: photo),
-                  ],
-                );
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [copy, SizedBox(height: 28), photo],
-              );
-            },
-          ),
-        ),
-        SizedBox(height: 32),
-        Text(
-          vision
-              ? 'Tres horizontes para crecer'
-              : 'Cómo llevamos nuestra misión a la práctica',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        SizedBox(height: 16),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final width = constraints.maxWidth >= 850
-                ? (constraints.maxWidth - 32) / 3
-                : constraints.maxWidth;
-            return Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              children: pillars
-                  .map(
-                    (p) => SizedBox(
-                      width: width,
-                      child: Sheet(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(p.$1, color: accentColor, size: 30),
-                            SizedBox(height: 18),
-                            Text(
-                              p.$2,
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            SizedBox(height: 12),
-                            Text(
-                              p.$3,
-                              style: TextStyle(height: 1.6, color: mutedColor),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList(),
-            );
-          },
-        ),
-        SizedBox(height: 32),
-        Text(
-          vision
-              ? 'Componentes pequeños. Ideas que pueden crecer.'
-              : 'Una mirada a lo que podemos aprovechar',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        SizedBox(height: 10),
-        Text(
-          'Imágenes ilustrativas de componentes y usos posibles. Cada pieza requiere evaluación técnica antes de reutilizarse.',
-          style: TextStyle(color: mutedColor, height: 1.5),
-        ),
-        SizedBox(height: 18),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final columns = constraints.maxWidth >= 850
-                ? 3
-                : constraints.maxWidth >= 550
-                ? 2
-                : 1;
-            final width = (constraints.maxWidth - (columns - 1) * 16) / columns;
-            final components = [
-              (
-                'component_gps.jpg',
-                'GPS / Localización',
-                'Explorar proyectos de orientación, registro de recorridos y ubicación de equipos.',
-              ),
-              (
-                'component_motion.jpg',
-                'Movimiento / Orientación',
-                'Aprender sobre aceleración, inclinación y cambios de posición mediante experimentos.',
-              ),
-              (
-                'component_camera.jpg',
-                'Cámara / Observación',
-                'Imaginar herramientas de observación y aprendizaje visual con respeto a la privacidad.',
-              ),
-            ];
-            return Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              children: components
-                  .map(
-                    (p) => SizedBox(
-                      width: width,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: borderColor),
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Image.asset(
-                              p.$1,
-                              height: 230,
-                              width: width,
-                              fit: BoxFit.cover,
-                              semanticLabel: 'Ilustración de ${p.$2}',
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    p.$2,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleLarge,
-                                  ),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    p.$3,
-                                    style: TextStyle(
-                                      color: mutedColor,
-                                      height: 1.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList(),
-            );
-          },
-        ),
-        SizedBox(height: 28),
-        Sheet(
-          child: Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 24,
-            runSpacing: 16,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'El siguiente paso puede empezar con vos.',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  SizedBox(height: 8),
-                  Text('Conocé el acopio disponible en CUR UNAN Matagalpa.'),
-                ],
-              ),
-              OutlinedButton.icon(
-                onPressed: () => openCenter(context),
-                icon: Icon(Icons.place_outlined),
-                label: Text('Ver centro de acopio'),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 }
