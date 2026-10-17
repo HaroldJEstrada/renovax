@@ -30,7 +30,10 @@ El logo original transparente está en `renovax_logo.png` y se declara como asse
 - Selector de los 15 departamentos y las 2 regiones autónomas. Solo Matagalpa permite registrar entregas.
 - CUR UNAN Matagalpa: página independiente, datos de atención, mapa mediante Leaflet con OpenStreetMap y contacto por WhatsApp.
 - Administración: acceso por correo y contraseña; autorización comprobada en Firestore.
-- Inventario: cantidades grandes de Wi-Fi, GPS, acelerómetro, motor vibrador, altavoz, sensor de proximidad y giroscopio; ingreso de cantidades y notas opcionales; tipos adicionales e historial.
+- Administración organizada con barra lateral que se puede contraer; en pantallas estrechas, las secciones se eligen desde un menú desplegable.
+- Inventario de piezas: cantidades grandes de Wi-Fi, GPS, acelerómetro, motor vibrador, altavoz, sensor de proximidad y giroscopio; ingreso de cantidades y notas opcionales; tipos adicionales.
+- Inventario de dispositivos: registro de teléfonos completos con marca, modelo, cantidad, estado y notas opcionales. Los ingresos de la misma marca, modelo y estado se suman en el inventario.
+- Historial de ingresos separado: combina piezas y dispositivos, ordenados del más reciente al más antiguo, con cantidades, estado, notas y fecha.
 - Los ingresos son documentos inmutables y las cantidades se calculan sumándolos. Dos administradores pueden registrar ingresos sin sobrescribir un contador compartido.
 
 ## 1. Ver la interfaz en Edge
@@ -107,7 +110,7 @@ flutter test
 flutter build web --dart-define-from-file=config/firebase.local.json
 ```
 
-La sintaxis de los archivos Dart fue comprobada con el formateador. No se ejecutaron análisis completo, pruebas Flutter, compilación ni pruebas reales de Google/Firebase en el entorno de preparación: la ejecución de Flutter fue bloqueada por una consulta a metadatos internos del entorno.
+La actualización del panel se comprobó con `flutter test --no-pub` (10 pruebas aprobadas), `flutter analyze --no-pub --no-fatal-infos` (sin errores ni advertencias; cinco avisos informativos del código existente) y `flutter build web --no-pub` (compilación correcta). No se probaron accesos con cuentas reales ni escrituras contra Firebase; las reglas de dispositivos deben publicarse antes de usar el nuevo registro con el proyecto real.
 
 Después de conectar Firebase, verificá:
 
@@ -123,12 +126,17 @@ Después de conectar Firebase, verificá:
 ## Estructura y límites actuales
 
 - `lib/main.dart`: pantallas y formularios.
+- `lib/admin_inventory.dart`: navegación del panel, dispositivos e historial; forma parte de `lib/main.dart`.
 - `lib/backend.dart`: inicialización, autenticación y comprobación de rol.
 - `lib/config.dart`: piezas, departamentos y datos del acopio.
 - `firestore.rules`: permisos y validación en el servidor.
 - `config/firebase.example.json`: plantilla de configuración pública.
 
-Los totales usan todos los ingresos y no hay salidas, correcciones ni paginación todavía. Para un inventario grande conviene agregar agregación en el servidor y paginación. Registrar una donación no incrementa inventario automáticamente: las piezas se ingresan después de evaluarlas. Esta versión está dirigida a navegador; no incluye integración de autenticación o mapas para aplicaciones nativas.
+Los totales usan todos los ingresos y no hay salidas, correcciones ni paginación todavía. Para un inventario grande conviene agregar agregación en el servidor y paginación. Registrar una donación no incrementa inventario automáticamente: los dispositivos y las piezas se ingresan por separado después de recibirlos o evaluarlos. Registrar piezas tampoco descuenta teléfonos del inventario. Esta versión está dirigida a navegador; no incluye integración de autenticación o mapas para aplicaciones nativas.
+
+### Activar el registro de dispositivos en Firebase
+
+Los teléfonos completos se guardan como ingresos inmutables en la colección `devices`; las piezas existentes permanecen en `movements`. Antes de usar esta actualización con Firebase, publicá la nueva versión de `firestore.rules` (Firebase Console → Firestore Database → Rules, o `firebase deploy --only firestore:rules` desde este proyecto). Las reglas permiten leer y registrar dispositivos únicamente a administradores y validan los campos, cantidades, estado, autor y fecha. No es necesario migrar los ingresos de piezas existentes. La vista previa sigue sin datos reales ni permiso para guardar.
 
 Documentación oficial:
 - https://firebase.google.com/docs/auth/flutter/federated-auth

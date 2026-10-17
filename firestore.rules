@@ -22,6 +22,22 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
       allow update, delete: if false;
     }
+    match /devices/{id} {
+      allow read: if admin();
+      allow create: if admin()
+        && request.resource.data.keys().hasOnly(['brand','model','quantity','condition','note','createdBy','createdAt'])
+        && request.resource.data.brand is string
+        && request.resource.data.brand.size() > 0 && request.resource.data.brand.size() <= 80
+        && request.resource.data.model is string
+        && request.resource.data.model.size() > 0 && request.resource.data.model.size() <= 120
+        && request.resource.data.quantity is int
+        && request.resource.data.quantity > 0 && request.resource.data.quantity <= 1000000
+        && request.resource.data.condition in ['Pendiente de evaluación','Funcional','Para reparar','Para recuperar piezas']
+        && request.resource.data.note is string && request.resource.data.note.size() <= 1000
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
     match /donations/{id} {
       allow read: if admin();
       allow create: if signedIn()

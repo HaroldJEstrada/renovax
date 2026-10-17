@@ -11,6 +11,8 @@ import 'backend.dart';
 import 'config.dart';
 import 'brand_theme.dart';
 
+part 'admin_inventory.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Backend.initialize();
@@ -756,9 +758,61 @@ class _AdminPageState extends State<AdminPage> {
                 child: Padding(
                   padding: EdgeInsets.all(24),
                   child: authorized
-                      ? InventoryPage()
+                      ? AdminInventoryPanel()
                       : Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            Container(
+                              padding: EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(colors: heroColors),
+                                borderRadius: BorderRadius.circular(22),
+                                border: Border.all(color: borderColor),
+                              ),
+                              child: Wrap(
+                                spacing: 18,
+                                runSpacing: 16,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 56,
+                                    height: 56,
+                                    decoration: BoxDecoration(
+                                      color: accentColor.withValues(alpha: .12),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Icon(
+                                      Icons.admin_panel_settings_outlined,
+                                      color: accentColor,
+                                      size: 30,
+                                    ),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'PANEL DE CONTROL',
+                                        style: TextStyle(
+                                          color: accentColor,
+                                          fontSize: 12,
+                                          letterSpacing: 1.6,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      SizedBox(height: 6),
+                                      Text(
+                                        'Gestioná el inventario de Renovax',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleLarge,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 24),
                             ConstrainedBox(
                               constraints: BoxConstraints(maxWidth: 480),
                               child: Sheet(
@@ -768,10 +822,19 @@ class _AdminPageState extends State<AdminPage> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Icon(
-                                        Icons.lock_outline,
-                                        color: accentColor,
-                                        size: 40,
+                                      Container(
+                                        width: 52,
+                                        height: 52,
+                                        decoration: BoxDecoration(
+                                          color: panelTint,
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
+                                        child: Icon(
+                                          Icons.lock_outline,
+                                          color: accentColor,
+                                          size: 28,
+                                        ),
                                       ),
                                       SizedBox(height: 20),
                                       Text(
@@ -837,6 +900,9 @@ class _AdminPageState extends State<AdminPage> {
                                         onPressed: Backend.ready && !busy
                                             ? login
                                             : null,
+                                        style: FilledButton.styleFrom(
+                                          minimumSize: Size.fromHeight(52),
+                                        ),
                                         child: Text(
                                           busy ? 'Verificando…' : 'Ingresar',
                                         ),
@@ -855,11 +921,35 @@ class _AdminPageState extends State<AdminPage> {
                             ),
                             if (!Backend.ready) ...[
                               SizedBox(height: 32),
-                              Text(
-                                'Vista previa del inventario · Sin datos reales ni guardado',
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.visibility_outlined,
+                                    color: accentColor,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Vista previa del inventario',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge,
+                                    ),
+                                  ),
+                                  Text(
+                                    'SIN GUARDAR',
+                                    style: TextStyle(
+                                      color: mutedColor,
+                                      fontSize: 11,
+                                      letterSpacing: 1,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
                               ),
                               SizedBox(height: 16),
-                              InventoryPage(preview: true),
+                              AdminInventoryPanel(preview: true),
                             ],
                           ],
                         ),
@@ -917,12 +1007,18 @@ class InventoryPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
+                  'PANEL DE CONTROL',
+                  style: TextStyle(
+                    color: accentColor,
+                    fontSize: 12,
+                    letterSpacing: 1.6,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(height: 6),
+                Text(
                   'Inventario de piezas',
                   style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                SizedBox(height: 8),
-                Text(
-                  '$sum piezas registradas · ${names.length} tipos de componentes',
                 ),
               ],
             ),
@@ -940,7 +1036,39 @@ class InventoryPage extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 24),
+        SizedBox(height: 20),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final compact = constraints.maxWidth < 560;
+            final width = compact
+                ? constraints.maxWidth
+                : (constraints.maxWidth - 16) / 2;
+            return Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _InventoryMetric(
+                  width: width,
+                  icon: Icons.inventory_2_outlined,
+                  label: 'Piezas registradas',
+                  value: '$sum',
+                ),
+                _InventoryMetric(
+                  width: width,
+                  icon: Icons.category_outlined,
+                  label: 'Tipos de componentes',
+                  value: '${names.length}',
+                ),
+              ],
+            );
+          },
+        ),
+        SizedBox(height: 28),
+        Text(
+          'Componentes',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        SizedBox(height: 12),
         LayoutBuilder(
           builder: (context, constraints) {
             final columns = constraints.maxWidth >= 850
@@ -962,16 +1090,24 @@ class InventoryPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              partIcon(entry.value),
-                              color: accentColor,
-                              size: 28,
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: panelTint,
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Icon(
+                                partIcon(entry.value),
+                                color: accentColor,
+                                size: 24,
+                              ),
                             ),
                             SizedBox(height: 18),
                             Text(
                               '${totals[entry.key] ?? 0}',
                               style: TextStyle(
-                                fontSize: 44,
+                                fontSize: 38,
                                 fontWeight: FontWeight.w800,
                                 color: headingColor,
                               ),
@@ -992,57 +1128,67 @@ class InventoryPage extends StatelessWidget {
             );
           },
         ),
-        SizedBox(height: 28),
-        Text(
-          'Historial de ingresos',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        SizedBox(height: 12),
-        if (movements.isEmpty)
-          Sheet(
-            child: Text(
-              'Aún no hay ingresos registrados. Las cantidades comienzan en cero.',
-            ),
-          )
-        else
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              columns: [
-                DataColumn(label: Text('Pieza')),
-                DataColumn(label: Text('Cantidad'), numeric: true),
-                DataColumn(label: Text('Estado / notas')),
-                DataColumn(label: Text('Fecha')),
-              ],
-              rows: movements.map((row) {
-                final stamp = row['createdAt'] as Timestamp?;
-                final date = stamp?.toDate().toLocal();
-                final label = date == null
-                    ? 'Guardando…'
-                    : '${date.day}/${date.month}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-                return DataRow(
-                  cells: [
-                    DataCell(Text(row['name'] as String)),
-                    DataCell(Text('${row['quantity']}')),
-                    DataCell(
-                      SizedBox(
-                        width: 250,
-                        child: Text(
-                          (row['note'] as String).isEmpty
-                              ? 'Sin notas'
-                              : row['note'] as String,
-                        ),
-                      ),
-                    ),
-                    DataCell(Text(label)),
-                  ],
-                );
-              }).toList(),
-            ),
-          ),
       ],
     );
   }
+}
+
+class _InventoryMetric extends StatelessWidget {
+  final double width;
+  final IconData icon;
+  final String label;
+  final String value;
+  const _InventoryMetric({
+    required this.width,
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: width,
+    padding: EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.circular(18),
+      border: Border.all(color: borderColor),
+      boxShadow: [
+        BoxShadow(color: glowColor, blurRadius: 18, offset: Offset(0, 5)),
+      ],
+    ),
+    child: Row(
+      children: [
+        Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            color: panelTint,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(icon, color: accentColor),
+        ),
+        SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: TextStyle(color: mutedColor)),
+              SizedBox(height: 4),
+              Text(
+                value,
+                style: TextStyle(
+                  color: headingColor,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class AddPartDialog extends StatefulWidget {
