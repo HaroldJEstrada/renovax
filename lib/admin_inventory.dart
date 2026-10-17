@@ -12,7 +12,12 @@ enum AdminSection {
 
 class AdminInventoryPanel extends StatefulWidget {
   final bool preview;
-  const AdminInventoryPanel({super.key, this.preview = false});
+  final bool fullScreen;
+  const AdminInventoryPanel({
+    super.key,
+    this.preview = false,
+    this.fullScreen = false,
+  });
 
   @override
   State<AdminInventoryPanel> createState() => _AdminInventoryPanelState();
@@ -87,13 +92,14 @@ class _AdminInventoryPanelState extends State<AdminInventoryPanel> {
     );
   }
 
-  Widget sidebar(BuildContext context) {
+  Widget sidebar(BuildContext context, {double? height}) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final user = !widget.preview && Backend.ready
         ? Backend.auth.currentUser
         : null;
     return Container(
       width: expanded ? 270 : 84,
+      height: height == null ? null : (height < 660 ? 660 : height),
       constraints: const BoxConstraints(minHeight: 660),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -211,7 +217,7 @@ class _AdminInventoryPanelState extends State<AdminInventoryPanel> {
                 ),
               ),
             menuItem(AdminSection.history, compact: !expanded),
-            const SizedBox(height: 66),
+            if (height != null) const Spacer() else const SizedBox(height: 66),
             const Divider(color: Color(0x44FFFFFF)),
             const SizedBox(height: 16),
             Row(
@@ -311,7 +317,7 @@ class _AdminInventoryPanelState extends State<AdminInventoryPanel> {
         ],
       );
       if (constraints.maxWidth < 850) {
-        return Column(
+        final mobile = Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Card(
@@ -335,6 +341,31 @@ class _AdminInventoryPanelState extends State<AdminInventoryPanel> {
             ),
             const SizedBox(height: 24),
             body,
+          ],
+        );
+        return widget.fullScreen
+            ? SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: mobile,
+              )
+            : mobile;
+      }
+      if (widget.fullScreen) {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 0, 16),
+              child: SingleChildScrollView(
+                child: sidebar(context, height: constraints.maxHeight - 32),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(32),
+                child: body,
+              ),
+            ),
           ],
         );
       }

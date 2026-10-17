@@ -751,6 +751,8 @@ class _AdminPageState extends State<AdminPage> {
     ),
     body: checking
         ? Center(child: CircularProgressIndicator())
+        : authorized
+        ? AdminInventoryPanel(fullScreen: true)
         : SingleChildScrollView(
             child: Center(
               child: ConstrainedBox(
@@ -994,54 +996,6 @@ class InventoryPage extends StatelessWidget {
             );
           },
         ),
-        SizedBox(height: 28),
-        Text(
-          'Historial de ingresos',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        SizedBox(height: 12),
-        if (movements.isEmpty)
-          Sheet(
-            child: Text(
-              'Aún no hay ingresos registrados. Las cantidades comienzan en cero.',
-            ),
-          )
-        else
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              columns: [
-                DataColumn(label: Text('Pieza')),
-                DataColumn(label: Text('Cantidad'), numeric: true),
-                DataColumn(label: Text('Estado / notas')),
-                DataColumn(label: Text('Fecha')),
-              ],
-              rows: movements.map((row) {
-                final stamp = row['createdAt'] as Timestamp?;
-                final date = stamp?.toDate().toLocal();
-                final label = date == null
-                    ? 'Guardando…'
-                    : '${date.day}/${date.month}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-                return DataRow(
-                  cells: [
-                    DataCell(Text(row['name'] as String)),
-                    DataCell(Text('${row['quantity']}')),
-                    DataCell(
-                      SizedBox(
-                        width: 250,
-                        child: Text(
-                          (row['note'] as String).isEmpty
-                              ? 'Sin notas'
-                              : row['note'] as String,
-                        ),
-                      ),
-                    ),
-                    DataCell(Text(label)),
-                  ],
-                );
-              }).toList(),
-            ),
-          ),
       ],
     );
   }
